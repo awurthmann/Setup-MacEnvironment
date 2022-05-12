@@ -70,6 +70,11 @@ brew install --cask appcleaner
 #brew install --cask wireshark
 #brew install --cask wireshark-chmodbpf
 
+##To be scripted app installs and add-ons
+#Zoom for OWA
+#Zoom for Outlook
+#Outlook Calendar for Slack
+
 
 ##Create hidden admin account
 LOCAL_ADMIN_FULLNAME="crash"     # The local admin user's full name
