@@ -1,7 +1,5 @@
 #!/bin/bash
-#my-environment-setup.sh
-#System: C02H35QLQ05G
-#Company: Cision
+#Setup-MacEnvironment.sh
 #Date: May 11, 2022
 
 #Warning - Not A Script
