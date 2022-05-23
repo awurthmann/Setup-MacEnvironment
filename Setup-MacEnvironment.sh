@@ -61,6 +61,7 @@ brew install --cask google-chrome
 brew install --cask github
 brew install --cask keka
 brew install --cask appcleaner
+brew install --cask signal
 #Frequent apps
 #brew install --cask powershell
 #brew install --cask zoom
