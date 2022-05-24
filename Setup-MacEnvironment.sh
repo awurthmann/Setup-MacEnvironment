@@ -47,7 +47,7 @@ echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighti
 #Security tools
 #brew install theharvester
 #brew install nmap
-#brew install testssl
+brew install testssl
 #brew install hashcat
 #brew install wireshark
 
