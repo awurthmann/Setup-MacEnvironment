@@ -18,7 +18,7 @@ eval "$(homebrew/bin/brew shellenv)"
 brew update --force --quiet
 chmod -R go-w "$(brew --prefix)/share/zsh"
 export PATH=$PATH:$HOME/homebrew/bin
-echo "export PATH=$PATH:$HOME/homebrew/bin" >> .zshrc
+echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
 
 
 ##Minimal VIM Setup
@@ -46,6 +46,8 @@ echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighti
 ##Install command line tools
 #Security tools
 #brew install theharvester
+###echo "export PATH=\$PATH:\$HOME/homebrew/etc/theharvester" >> .zshrc
+####/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
 #brew install nmap
 brew install testssl
 #brew install hashcat
