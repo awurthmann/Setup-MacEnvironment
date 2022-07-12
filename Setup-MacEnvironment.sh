@@ -220,11 +220,14 @@ fi
 ###End Admin Check
 
 ###Xcode Install
-if ! xcode-select -p > /dev/null ; then 
-    install_xcode
+if ! xcode-select -p > /dev/null ; then
+    log_and_color -i -f $logfile "Running: xcode-select --install"
+    xcode-select --install
+    #install_xcode
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Xcode successfully installed"
-        shutdown -r now
+        log_and_color -w -f $logfile "Reboot required. Reboot and restart setup script"
+        #shutdown -r now
     else
         log_and_color -e -f $logfile "ERROR: Xcode was not installed. Exiting"
     fi
@@ -325,9 +328,9 @@ done
 ###End Standards App Installs
 
 ###Microsoft App Installs
-MSAPPS=( "Intune:intune-company-portal"
-        "Teams:microsoft-teams"
-        "Edge:microsoft-edge"
+MSAPPS=( #"Intune:intune-company-portal"
+        #"Teams:microsoft-teams"
+        #"Edge:microsoft-edge"
         "Remote Desktop:microsoft-remote-desktop"
         "PowerShell:powershell"
     )
@@ -402,12 +405,53 @@ if ! brew list wireshark; then
 fi
 ###End Wireshark Install
 
+###Rename Computer
+while true; do
+    read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
+    case $yn in
+        [Yy]* ) read -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
+        [Nn]* ) break; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+if [ ! -z "$NEW_HOST_NAME" ]; then 
+    
+    read -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
+    if [ ! -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
+    log_and_color -i -f $logfile "Renaming computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+    scutil --set HostName "$NEW_HOST_NAME.$NEW_DOMAIN_NAME" && log_and_color -i -g $logfile "HostName set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME" || log_and_color -i -g $logfile "ERROR: HostName was not set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+    scutil --set LocalHostName "$NEW_HOST_NAME" && log_and_color -i -g $logfile "LocalHostName set to $NEW_HOST_NAME" || log_and_color -i -g $logfile "ERROR: LocalHostName was not set to $NEW_HOST_NAME"
+    scutil --set ComputerName "$NEW_HOST_NAME" && log_and_color -i -g $logfile "ComputerName set to $NEW_HOST_NAME" || log_and_color -i -g $logfile "ERROR: ComputerName was not set to $NEW_HOST_NAME"
+    dscacheutil -flushcache
+
+    while true; do
+        echo
+        echo "$(tput setaf 3)A final reboot is required "
+        read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
+        case $yn in
+            [Yy]* ) log_and_color -i -f $logfile "Setup complete, rebooting";shutdown -r now; break;;
+            [Nn]* ) break; exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+fi
+###End Rename Computer
+
 ###Misc. Output and reminders to screen
 #
-#
-#
-#
-#
+#Zoom for OWA
+#Zoom for Outlook
+#Outlook Calendar for Slack
+#Edge Security Settings
+#zsh prompt
+#apple id
+#icon clean up
+#if intune/ms company portal, log in
+#terminal prefferences
+#finder prefferences
+#rename computer (before removing admin rights)
 ###
 
 #Warning - Not A Script
