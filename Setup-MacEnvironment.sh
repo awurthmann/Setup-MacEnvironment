@@ -84,7 +84,7 @@ function wait_app_stop () {
 
 function log_and_color () {
     local files=()
-    local color="Color_Off"
+    local color="COLOR_OFF"
 
     # Reset
     local COLOR_OFF='\033[0m'       # Text Reset
@@ -116,9 +116,14 @@ function log_and_color () {
 
     #standard out in color
     case $color in
+        BLACK|black ) echo -e "${BLACK}$*${COLOR_OFF}";;
         RED|red ) echo -e "${RED}$*${COLOR_OFF}";;
         GREEN|green ) echo -e "${GREEN}$*${COLOR_OFF}";;
         YELLOW|yellow ) echo -e "${YELLOW}$*${COLOR_OFF}";;
+        BLUE|blue ) echo -e "${BLUE}$*${COLOR_OFF}";;
+        PURPLE|purple ) echo -e "${PURPLE}$*${COLOR_OFF}";;
+        CYAN|cyan ) echo -e "${CYAN}$*${COLOR_OFF}";;
+        WHITE|white ) echo -e "${WHITE}$*${COLOR_OFF}";;
         * ) echo -e "${COLOR_OFF}$*${COLOR_OFF}";;
     esac
     #end standard out in color
