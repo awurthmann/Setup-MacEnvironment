@@ -26,20 +26,20 @@
 
 ###Functions
 function wait_app_start () {
-    appName=$1
+    appPath=$1
     checkMax=120
 
     appCheck=true
     checkCount=1
 
-    if pgrep -f /Applications/$appName > /dev/null ; then 
+    if pgrep -f $appPath > /dev/null ; then 
         appCheck=false
     fi
 
     while [ "$appCheck" = true ] ; do
 
         sleep 1.0
-        if pgrep -f /Applications/$appName > /dev/null ; then
+        if pgrep -f $appPath > /dev/null ; then
             appCheck=false
             break
         fi
@@ -55,19 +55,19 @@ function wait_app_start () {
 }
 
 function wait_app_stop () {
-    appName=$1
+    appPath=$1
     checkMax=7200
 
     appCheck=true
     checkCount=1
 
-    if ! pgrep -f /Applications/$appName > /dev/null ; then 
+    if ! pgrep -f $appPath > /dev/null ; then 
         appCheck=false
     fi
 
     while [ "$appCheck" = true ] ; do
         sleep 1.0
-        if ! pgrep -f /Applications/$appName > /dev/null ; then
+        if ! pgrep -f $appPath > /dev/null ; then
             appCheck=false
             break
         fi
@@ -138,11 +138,11 @@ function install_xcode () {
     osascript -e 'tell app "Terminal" to do script "xcode-select --install"'
 
     log_and_color -i -f $logfile "Waiting for Xcode.app to start"
-    wait_app_start Xcode.app
+    wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Xcode.app started"
         log_and_color -i -f $logfile "Waiting for Xcode.app to stop"
-        wait_app_stop Xcode.app
+        wait_app_stop "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
         if [ $? -eq 0 ]; then
             log_and_color -s -f $logfile "Xcode.app completed"
             log_and_color -w -f $logfile "Reboot required. Rebooting now"
@@ -221,13 +221,10 @@ fi
 
 ###Xcode Install
 if ! xcode-select -p > /dev/null ; then
-    log_and_color -i -f $logfile "Running: xcode-select --install"
-    xcode-select --install
-    #install_xcode
+    install_xcode
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Xcode successfully installed"
-        log_and_color -w -f $logfile "Reboot required. Reboot and restart setup script"
-        #shutdown -r now
+        shutdown -r now
     else
         log_and_color -e -f $logfile "ERROR: Xcode was not installed. Exiting"
     fi
