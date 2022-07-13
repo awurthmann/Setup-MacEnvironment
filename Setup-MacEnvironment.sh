@@ -32,14 +32,14 @@ function wait_app_start () {
     appCheck=true
     checkCount=1
 
-    if pgrep -f $appPath > /dev/null ; then 
+    if pgrep -f "$appPath" > /dev/null ; then 
         appCheck=false
     fi
 
     while [ "$appCheck" = true ] ; do
 
         sleep 1.0
-        if pgrep -f $appPath > /dev/null ; then
+        if pgrep -f "$appPath" > /dev/null ; then
             appCheck=false
             break
         fi
@@ -61,13 +61,13 @@ function wait_app_stop () {
     appCheck=true
     checkCount=1
 
-    if ! pgrep -f $appPath > /dev/null ; then 
+    if ! pgrep -f "$appPath" > /dev/null ; then 
         appCheck=false
     fi
 
     while [ "$appCheck" = true ] ; do
         sleep 1.0
-        if ! pgrep -f $appPath > /dev/null ; then
+        if ! pgrep -f "$appPath" > /dev/null ; then
             appCheck=false
             break
         fi
