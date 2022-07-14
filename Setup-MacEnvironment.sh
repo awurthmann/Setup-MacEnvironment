@@ -11,8 +11,8 @@
 # means.
 #
 # --------------------------------------------------------------------------------------------
-# Name: Setup-MacEnvironment.ps1
-# Version: 2022.07.11.1335
+# Name: Setup-MacEnvironment.sh
+# Version: 2022.07.14.1406
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: xxxxxx
@@ -159,12 +159,24 @@ function install_xcode () {
 
 function install_tool () {
     log_and_color -s -f $logfile "Starting install for: $1"
-    brew install $1 && log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"
+    brew install $1
+    #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile "$1 successfully installed"
+    else
+        log_and_color -e -f $logfile "ERROR: $1 install failed"
+    fi
 }
 
 function install_app () {
     log_and_color -s -f $logfile "Starting install for: $1"
-    brew install --cask $1 && log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"   
+    brew install --cask $1
+    #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"   
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile "$1 successfully installed"
+    else
+        log_and_color -e -f $logfile "ERROR: $1 install failed"
+    fi
 }
 
 function install_theharvester () {
@@ -213,8 +225,8 @@ function install_wireshark () {
 logfile=~/Documents/Setup-MacEnvironment.log
 
 ###Admin Check
-if [ `whoami` != root ]; then
-    log_and_color -e -f $logfile "ERROR: This script must be run as root or using sudo. Exiting"
+if [ `whoami` == root ]; then
+    log_and_color -e -f $logfile "ERROR: This script must NOT be run as root or using sudo. Exiting"
     exit
 fi
 ###End Admin Check
@@ -232,19 +244,27 @@ if ! xcode-select -p > /dev/null ; then
 fi
 ###End Xcode Install
 
-####Working code ends here
-log_and_color -w -f $logfile "Reached end of tested code, exiting"
-exit
-
 ###Install Updates/OS Patches
-log_and_color -i -f $logfile "Running: softwareupdate --all --install --force"
-softwareupdate --all --install --force && log_and_color -s -f $logfile "Software update successfully completed" || log_and_color -e -f $logfile "ERROR: Software update failed"
+if ! grep "Software update successfully completed" $logfile > /dev/null; then 
+	log_and_color -i -f $logfile "Running: softwareupdate --all --install --force"
+	sudo softwareupdate --all --install --force
+    #&& log_and_color -s -f $logfile "Software update successfully completed" || log_and_color -e -f $logfile "ERROR: Software update failed"
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile "Software update successfully completed"
+    else
+        log_and_color -e -f $logfile "ERROR: Software update failed"
+        exit
+    fi
+fi
+
 ###EndInstall Updates/OS Patches
+
 
 ###VIM Setup
 #This should be a file stored in GitHub then pulled down but for now this will do.
-log_and_color -i -f $logfile "Setting VIM Enviroment"
+
 if [ ! -f "$HOME/.vimrc" ]; then
+	log_and_color -i -f $logfile "Setting VIM Environment"
     echo "set nocompatible" >> $HOME/.vimrc
     echo "filetype on" >> $HOME/.vimrc
     echo "filetype plugin on" >> $HOME/.vimrc
@@ -267,37 +287,70 @@ if [ ! -f "$HOME/.vimrc" ]; then
     echo "set wildmenu" >> $HOME/.vimrc
     echo "set wildmode=list:longest" >> $HOME/.vimrc
     echo "set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx" >> $HOME/.vimrc
+	log_and_color -g -f $logfile "VIM Environment Setup"
 fi
 #End VIM Setup
 
 ###Homebrew Setup (non-admin post install version)
 if [ ! -d $HOME/homebrew ]; then
+	log_and_color -i -f $logfile "Starting Homebrew Setup"
     cd $HOME
-    mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+    mkdir homebrew
+    curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
     eval "$(homebrew/bin/brew shellenv)"
     brew update --force --quiet
     chmod -R go-w "$(brew --prefix)/share/zsh"
     export PATH=$PATH:$HOME/homebrew/bin
     echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
+	log_and_color -g -f $logfile "Homebrew Setup Complete"
 fi
 ###End Homebrew Setup (non-admin post install version)
 
+
 ###Shell Setup
 if [ ! -d $HOME/.oh-my-zsh ]; then
+    echo
+	echo "$(tput setaf 5)ATTENTION: The oh-my-zsh installation will require a restart of this setup script"
+    echo "$(tput setaf 6)Press any key to continue"
+    read any
+    unset any
+	
+	log_and_color -w -f $logfile "oh-my-zsh setup stops this setup script during install. To complete setup, restart the script"
+	log_and_color -i -f $logfile "Starting oh-my-zsh Setup"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    #Readd PATH settings to .zshrc
-    echo "" >> .zshrc
-    echo "# Added by $USER" >> .zshrc
-    echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
-    #Add zsh syntax highlighting
-    install_tool zsh-syntax-highlighting && echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> .zshrc
+else
+	if tail -n 1 $logfile | grep -q "Starting oh-my-zsh Setup"; then
+		log_and_color -g -f $logfile "oh my zsh Setup Complete"		
+		if [[ ! ":$PATH:" == *"$HOME/homebrew/bin"* ]]; then export PATH=$PATH:$HOME/homebrew/bin; fi
+
+        if ! tail -n 5 $HOME/.zshrc | grep -q "HOME/homebrew/bin"; then
+    		echo "" >> $HOME/.zshrc
+    		echo "# Added by $USER" >> $HOME/.zshrc
+    		echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> $HOME/.zshrc
+        fi
+	fi
 fi
+
+if [ ! -f $HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    	install_tool zsh-syntax-highlighting
+	if [ -f $HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+		 echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
+	fi
+fi	
 ###End Shell Setup
+
+###Double Check homebrew is in PATH
+if [[ ! ":$PATH:" == *"$HOME/homebrew/bin"* ]]; then export PATH=$PATH:$HOME/homebrew/bin; fi
+
+#
+#NEED BETTER METHOD FOR CHECKING IF APP IS INSTALLED BOTH VIA BREW AND OTHERWISE
+# brew list --version once into an array then searcht the array as well as /Applications
+#
 
 ###Standard App Installs
 STDAPPS=( "Slack:slack"
         "Google Chrome:google-chrome"
-        "Zoom:zoom"
+        #"Zoom:zoom"
         "Visual Studio Code:visual-studio-code"
         "VLC Media Player:vlc" 
         "GitHub Desktop:github" 
@@ -311,6 +364,8 @@ for stdapp in "${STDAPPS[@]}" ; do
     VALUE="${stdapp##*:}"
 
     if ! brew list "$VALUE"; then
+	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install standard app $KEY? (y or n): " yn
             case $yn in
@@ -323,6 +378,7 @@ for stdapp in "${STDAPPS[@]}" ; do
     echo
 done
 ###End Standards App Installs
+
 
 ###Microsoft App Installs
 MSAPPS=( #"Intune:intune-company-portal"
@@ -337,6 +393,8 @@ for msapp in "${MSAPPS[@]}" ; do
     VALUE="${msapp##*:}"
 
     if ! brew list "$VALUE"; then
+	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
             case $yn in
@@ -361,6 +419,8 @@ for sectool in "${SECTOOLS[@]}" ; do
     VALUE="${sectool##*:}"
 
     if ! brew list "$VALUE"; then
+	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
             case $yn in
@@ -376,6 +436,8 @@ done
 
 ###TheHarvester Install
 if ! brew list theharvester; then
+	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	echo 
     while true; do
         read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
         case $yn in
@@ -402,136 +464,70 @@ if ! brew list wireshark; then
 fi
 ###End Wireshark Install
 
+
 ###Rename Computer
-while true; do
-    read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
-    case $yn in
-        [Yy]* ) read -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
-        [Nn]* ) break; exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
-
-if [ ! -z "$NEW_HOST_NAME" ]; then 
-    
-    read -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
-    if [ ! -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
-    log_and_color -i -f $logfile "Renaming computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
-    scutil --set HostName "$NEW_HOST_NAME.$NEW_DOMAIN_NAME" && log_and_color -i -g $logfile "HostName set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME" || log_and_color -i -g $logfile "ERROR: HostName was not set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
-    scutil --set LocalHostName "$NEW_HOST_NAME" && log_and_color -i -g $logfile "LocalHostName set to $NEW_HOST_NAME" || log_and_color -i -g $logfile "ERROR: LocalHostName was not set to $NEW_HOST_NAME"
-    scutil --set ComputerName "$NEW_HOST_NAME" && log_and_color -i -g $logfile "ComputerName set to $NEW_HOST_NAME" || log_and_color -i -g $logfile "ERROR: ComputerName was not set to $NEW_HOST_NAME"
-    dscacheutil -flushcache
-
+if ! grep "SRenaming computer to" $logfile > /dev/null; then 
     while true; do
-        echo
-        echo "$(tput setaf 3)A final reboot is required "
-        read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
+        read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
         case $yn in
-            [Yy]* ) log_and_color -i -f $logfile "Setup complete, rebooting";shutdown -r now; break;;
+            [Yy]* ) read -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
             [Nn]* ) break; exit;;
             * ) echo "Please answer yes or no.";;
         esac
     done
 
+    if [ ! -z "$NEW_HOST_NAME" ]; then 
+        
+        read -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
+        if [ -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
+
+        while true; do
+            read -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME: " yn
+            case $yn in
+                [Yy]* ) rename=true; break;;
+                [Nn]* ) break; exit;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+
+        if "$rename" eq "true"; then
+            log_and_color -i -f $logfile "Renaming computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+
+            sudo scutil --set HostName "$NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+            if [ $? -eq 0 ]; then
+                log_and_color -i -g $logfile "HostName set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+            else
+                log_and_color -i -g $logfile "ERROR: HostName was not set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+            fi
+
+            sudo scutil --set LocalHostName "$NEW_HOST_NAME"
+            if [ $? -eq 0 ]; then
+                log_and_color -i -g $logfile "LocalHostName set to $NEW_HOST_NAME"
+            else
+                log_and_color -i -g $logfile "ERROR: LocalHostName was not set to $NEW_HOST_NAME"
+            fi
+
+            sudo scutil --set ComputerName "$NEW_HOST_NAME"
+            if [ $? -eq 0 ]; then
+                log_and_color -i -g $logfile "ComputerName set to $NEW_HOST_NAME"
+            else
+                log_and_color -i -g $logfile "ERROR: ComputerName was not set to $NEW_HOST_NAME"
+            fi
+
+            sudo dscacheutil -flushcache
+
+        else
+            log_and_color -w -f $logfile "WARN: Computer was not renamed."
+        fi
+        unset rename
+
+
+
+    fi
 fi
 ###End Rename Computer
 
-###Misc. Output and reminders to screen
-#
-#Zoom for OWA
-#Zoom for Outlook
-#Outlook Calendar for Slack
-#Edge Security Settings
-#zsh prompt
-#apple id
-#icon clean up
-#if intune/ms company portal, log in
-#terminal prefferences
-#finder prefferences
-#rename computer (before removing admin rights)
-###
-
-#Warning - Not A Script
-echo "This 'script' is not a script. It is a history of the commands I type to setup my environment. Copy paste to victory."
-exit
-
-
-##Homebrew Prerequisites
-xcode-select --install
-
-
-##Homebrew Setup (non-admin version)
-cd $HOME
-mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
-eval "$(homebrew/bin/brew shellenv)"
-brew update --force --quiet
-chmod -R go-w "$(brew --prefix)/share/zsh"
-export PATH=$PATH:$HOME/homebrew/bin
-echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
-
-
-##Minimal VIM Setup
-echo "filetype plugin indent on" >> $HOME/.vimrc
-echo "set term=builtin_ansi" >> $HOME/.vimrc
-echo "syntax on" >> $HOME/.vimrc
-
-
-##Install Updates/OS Patches
-softwareupdate --all --install --force
-
-
-##Shell Setup
-#brew install zsh #Install latest zsh, commented out, requires additional non-document steps
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-#Readd PATH settings to .zshrc
-echo "" >> .zshrc
-echo "# Added by $USER" >> .zshrc
-echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
-#Add zsh syntax highlighting
-brew install zsh-syntax-highlighting
-echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> .zshrc
-
-
-##Install command line tools
-#Security tools
-#brew install nmap
-#brew install testssl
-#brew install hashcat
-#brew install theharvester
-###echo "export PATH=\$PATH:\$HOME/homebrew/etc/theharvester" >> .zshrc
-####/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
-#brew install wireshark
-#Security apps
-#brew install --cask wireshark
-#brew install --cask wireshark-chmodbpf
-
-
-##Install applications
-#Standard apps
-brew install --cask vlc
-brew install --cask visual-studio-code
-brew install --cask slack
-brew install --cask google-chrome
-brew install --cask github
-brew install --cask keka
-brew install --cask appcleaner
-brew install --cask signal
-
-#Frequent apps
-#brew install --cask powershell
-#brew install --cask zoom
-#brew install --cask microsoft-teams
-#brew install --cask microsoft-edge
-
-
-
-##To be scripted app installs and add-ons
-#Zoom for OWA
-#Zoom for Outlook
-#Outlook Calendar for Slack
-
-
-##Create hidden admin account
+###Admin Account Creation
 echo "Enter full name of new admin user, default is Crash Override:"
 read LOCAL_ADMIN_FULLNAME
 
@@ -547,18 +543,93 @@ else
         exit
     fi
 fi
-log_and_color -i -f $logfile "Local admin username set to: $LOCAL_ADMIN_SHORTNAME"
+log_and_color -i -f $logfile "Local admin, $LOCAL_ADMIN_FULLNAME, username set to: $LOCAL_ADMIN_SHORTNAME"
+sudo sysadminctl -addUser "$LOCAL_ADMIN_SHORTNAME" -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
+if [ $? -eq 0 ]; then
+    log_and_color -s -f $logfile "Successfully created $LOCAL_ADMIN_FULLNAME with home director at /var/$LOCAL_ADMIN_SHORTNAME"
+else
+    log_and_color -e -f $logfile "ERROR: Unable to create $LOCAL_ADMIN_FULLNAME"
+    exit
+fi
 
-#LOCAL_ADMIN_FULLNAME="crash"     # The local admin user's full name
-#LOCAL_ADMIN_SHORTNAME="crash"     # The local admin user's shortname
-sudo sysadminctl -addUser $LOCAL_ADMIN_SHORTNAME -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
 sudo dscl . create /Users/$LOCAL_ADMIN_SHORTNAME IsHidden 1
-sudo dscl . -delete "/SharePoints/$LOCAL_ADMIN_FULLNAME's Public Folder" # Removes the public folder sharepoint for the local admin if it was created
-sudo dscl . -passwd /Users/$LOCAL_ADMIN_SHORTNAME
+if [ $? -eq 0 ]; then
+    log_and_color -s -f $logfile "Successfully hid $LOCAL_ADMIN_FULLNAME"
+else
+    log_and_color -e -f $logfile "ERROR: Unable to hide $LOCAL_ADMIN_FULLNAME"
+    exit
+fi
 
-##Remove admin permissions for standard account and create scripts to re-add with hidden admin account
+
+sudo dscl . -delete "/SharePoints/$LOCAL_ADMIN_FULLNAME's Public Folder" # Removes the public folder sharepoint for the local admin if it was created
+if [ $? -eq 0 ]; then
+    log_and_color -s -f $logfile "Successfully deleted $LOCAL_ADMIN_FULLNAME's Public Folder'"
+else
+    log_and_color -w -f $logfile "WARN: Unable to delete $LOCAL_ADMIN_FULLNAME's Public Folder. Folder may not exist"
+fi
+echo
+echo "$(tput setaf 3)Enter password for $LOCAL_ADMIN_FULLNAME"
+sudo dscl . -passwd /Users/$LOCAL_ADMIN_SHORTNAME
+if [ $? -eq 0 ]; then
+    log_and_color -s -f $logfile "Successfully created password for $LOCAL_ADMIN_FULLNAME"
+else
+    log_and_color -e -f $logfile "ERROR: Unable to create password for $LOCAL_ADMIN_FULLNAME"
+    exit
+fi
+
+log_and_color -i -f $logfile "Creating re-admin ease-of-use scripts in $HOME/Public"
 echo "sudo dseditgroup -o edit -a $USER -t user admin" > $HOME/Public/add-admin.sh
 sudo chmod +x $HOME/Public/add-admin.sh
 echo "sudo dseditgroup -o edit -d $USER -t user admin" > $HOME/Public/remove-admin.sh
 sudo chmod +x $HOME/Public/remove-admin.sh
-sudo dseditgroup -o edit -d $USER -t user admin
+
+
+if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then 
+    log_and_color -i -f $logfile "Removing $USER's admin privileges"
+    sudo dseditgroup -o edit -d $USER -t user admin
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile "$USER's admin privileges were revoked"
+    else
+        log_and_color -e -f $logfile "ERROR: Unable to revoke $USER's admin privileges"
+        exit
+    fi
+else
+    log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
+fi
+###End Admin Account Creation
+
+###Misc. Output and reminders to screen
+#
+#Start Microsoft Word
+#Start Outlook
+#Zoom for OWA
+#Zoom for Outlook
+#Outlook Calendar for Slack
+# 
+#Edge Security Settings, sync'd with account
+#zsh prompt, apple
+#apple id
+#icon clean up
+#if intune/ms company portal, log in
+#terminal prefferences
+#finder prefferences
+#Log into Chrome
+#Cleanup App bar
+#Log into Contacts/Google Workplace
+#Apple Account for Workcomputer only sync/enable: Contacts, Find my Mac, Siri
+###
+
+###Finale
+while true; do
+    echo
+    echo "$(tput setaf 3)A final reboot is required "
+    read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
+    case $yn in
+        [Yy]* ) log_and_color -s -f $logfile "Setup complete, rebooting";shutdown -r now; break;;
+        [Nn]* ) log_and_color -w -f $logfile "Setup complete, reboot recommended";break; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+###End Finale
+
+exit
