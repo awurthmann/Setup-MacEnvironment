@@ -12,10 +12,15 @@ binary, for any purpose, commercial or non-commercial, and by any
 means.
 
 ## Instructions:
-	Copy/Paste the line below into shell (running with root/sudo privileges)
+
+	Download Setup-MacEnvironment.sh
+	Open a Terminal and CD to directory containing Setup-MacEnvironment.sh
+	chmod +x ./Setup-MacEnvironment.sh
+	./Setup-MacEnvironment.sh
+
+OR (untested)
+Copy/Paste the line below into shell (running with root/sudo privileges)
 ```bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment
 .sh)"
 ```
-OR
-Download, chmod +x and run
