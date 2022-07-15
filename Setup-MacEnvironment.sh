@@ -139,7 +139,8 @@ function log_and_color () {
 function install_xcode () {
     log_and_color -i -f $logfile "Running: xcode-select --install"
 
-    osascript -e 'tell app "Terminal" to do script "xcode-select --install"'
+    #osascript -e 'tell app "Terminal" to do script "xcode-select --install"'
+    xcode-select --install
 
     log_and_color -i -f $logfile "Waiting for Xcode.app to start"
     wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
@@ -635,5 +636,3 @@ while true; do
     esac
 done
 ###End Finale
-
-exit
