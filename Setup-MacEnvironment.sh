@@ -12,16 +12,20 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.14.1406
+# Version: 2022.07.15.0645
 # Description: Setup Mac Environment on my Test System(s)
 # 
-# Instructions: xxxxxx
+# Instructions: Download Setup-MacEnvironment.sh
+#                chmod +x ./Setup-MacEnvironment.sh
+#                ./Setup-MacEnvironment.sh
 #	
-# Tested with: xxxxx
-# Arguments: xxxxxx
-# Output: Standard Out
+# Tested with: macOS 12.4 21F2081
+# Arguments: None
+# Output: Standard Out, Info Log and Error Log files
 #
 # Notes:  
+#   Latest version, which added some error handling, has not been tested on a fresh install.
+#    Functionality the same as previous version. 
 # --------------------------------------------------------------------------------------------
 
 ###Functions
@@ -264,7 +268,7 @@ fi
 #This should be a file stored in GitHub then pulled down but for now this will do.
 
 if [ ! -f "$HOME/.vimrc" ]; then
-	log_and_color -i -f $logfile "Setting VIM Environment"
+    log_and_color -i -f $logfile "Setting VIM Environment"
     echo "set nocompatible" >> $HOME/.vimrc
     echo "filetype on" >> $HOME/.vimrc
     echo "filetype plugin on" >> $HOME/.vimrc
@@ -287,13 +291,13 @@ if [ ! -f "$HOME/.vimrc" ]; then
     echo "set wildmenu" >> $HOME/.vimrc
     echo "set wildmode=list:longest" >> $HOME/.vimrc
     echo "set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx" >> $HOME/.vimrc
-	log_and_color -g -f $logfile "VIM Environment Setup"
+    log_and_color -g -f $logfile "VIM Environment Setup complete"
 fi
 #End VIM Setup
 
 ###Homebrew Setup (non-admin post install version)
 if [ ! -d $HOME/homebrew ]; then
-	log_and_color -i -f $logfile "Starting Homebrew Setup"
+    log_and_color -i -f $logfile "Starting Homebrew Setup"
     cd $HOME
     mkdir homebrew
     curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
@@ -302,7 +306,7 @@ if [ ! -d $HOME/homebrew ]; then
     chmod -R go-w "$(brew --prefix)/share/zsh"
     export PATH=$PATH:$HOME/homebrew/bin
     echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
-	log_and_color -g -f $logfile "Homebrew Setup Complete"
+    log_and_color -g -f $logfile "Homebrew Setup Complete"
 fi
 ###End Homebrew Setup (non-admin post install version)
 
@@ -466,7 +470,7 @@ fi
 
 
 ###Rename Computer
-if ! grep "SRenaming computer to" $logfile > /dev/null; then 
+if ! grep "Renaming computer to" $logfile > /dev/null; then 
     while true; do
         read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
         case $yn in
