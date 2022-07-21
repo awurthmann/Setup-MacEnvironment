@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.21.1201
+# Version: 2022.07.21.1655
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -348,10 +348,8 @@ fi
 ###Double Check homebrew is in PATH
 if [[ ! ":$PATH:" == *"$HOME/homebrew/bin"* ]]; then export PATH=$PATH:$HOME/homebrew/bin; fi
 
-#
-#NEED BETTER METHOD FOR CHECKING IF APP IS INSTALLED BOTH VIA BREW AND OTHERWISE
-# brew list --version once into an array then searcht the array as well as /Applications
-#
+###Homebrew Inventory
+brewApps=( $(brew list --version | awk '{ print $1 }') )
 
 ###Standard App Installs
 STDAPPS=( "Slack:slack"
@@ -369,7 +367,7 @@ for stdapp in "${STDAPPS[@]}" ; do
     KEY="${stdapp%%:*}"
     VALUE="${stdapp##*:}"
 
-    if ! brew list "$VALUE"; then
+    if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
@@ -398,7 +396,7 @@ for msapp in "${MSAPPS[@]}" ; do
     KEY="${msapp%%:*}"
     VALUE="${msapp##*:}"
 
-    if ! brew list "$VALUE"; then
+    if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
@@ -424,7 +422,7 @@ for sectool in "${SECTOOLS[@]}" ; do
     KEY="${sectool%%:*}"
     VALUE="${sectool##*:}"
 
-    if ! brew list "$VALUE"; then
+    if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
@@ -441,7 +439,7 @@ done
 ###End Security Tools Installs
 
 ###TheHarvester Install
-if ! brew list theharvester; then
+if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
 	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
     while true; do
@@ -457,7 +455,7 @@ fi
 ###End TheHarvester Install
 
 ###Wireshark Install
-if ! brew list wireshark; then
+if [[ ! " ${brewApps[@]} " =~ " wireshark " ]]; then
     while true; do
         read -p "$(tput setaf 3)Do you wish to install Security app Wireshark? (y or n): " yn
         case $yn in
