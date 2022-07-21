@@ -605,24 +605,40 @@ fi
 
 ###Misc. Output and reminders to screen
 #
+#If intune/ms company portal, log in
+#
 #Start Microsoft Word
+#   Log into Office 365
 #Start Outlook
+#   Log into Office 365
 #Zoom for OWA
+#   https://appsource.microsoft.com/en-us/product/office/WA104381712?tab=Overview
+#   https://outlook.office.com/mail/options/calendar/eventAndInvitations
 #Zoom for Outlook
-#Outlook Calendar for Slack
+#   Install the Outlook add-in
+    # Open Outlook and sign in to your account.
+    # Switch to Mail view, click the ellipsis button , and then select Get Add-ins. Outlook will open a browser to manage your add-ins.
+    # Search for Zoom for Outlook, or switch to the Admin-managed tab to view add-ins made available by your account admins. 
+    # Click on Zoom for Outlook and then click Add. 
+# Optional: Outlook Calendar for Slack
 # 
 #Edge Security Settings, sync'd with account
 #zsh prompt, apple
 #apple id
-#icon clean up
-#if intune/ms company portal, log in
-#terminal prefferences
+#Taskbar clean up
+#terminal prefferences 
 #finder prefferences
 #Log into Chrome
-#Cleanup App bar
 #Log into Contacts/Google Workplace
-#Apple Account for Workcomputer only sync/enable: Contacts, Find my Mac, Siri
+#Apple Account only sync/enable: Contacts, Find my Mac, Siri
+#HW Setup including mouse, keybaord, dock
+#Set screenshots folder
+#  mkdir ~/Documents/Screen\ Shots
+#  defaults write com.apple.screencapture location "~/Documents/Screen Shots"
 ###
+
+
+
 
 ###Finale
 while true; do
