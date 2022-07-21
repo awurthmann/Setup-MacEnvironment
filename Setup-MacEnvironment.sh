@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.15.0645
+# Version: 2022.07.21.1201
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -25,7 +25,8 @@
 #
 # Notes:  
 #   Latest version, which added some error handling, has not been tested on a fresh install.
-#    Functionality the same as previous version. 
+#    Functionality the same as previous version.
+#   I am considering adding https://github.com/clintmod/macprefs to save and reload prefferences.
 # --------------------------------------------------------------------------------------------
 
 ###Functions
@@ -532,7 +533,7 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
 fi
 ###End Rename Computer
 
-###Admin Account Creation
+###Hidden Admin Account Creation
 echo "Enter full name of new admin user, default is Crash Override:"
 read LOCAL_ADMIN_FULLNAME
 
@@ -601,41 +602,40 @@ if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then
 else
     log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
 fi
-###End Admin Account Creation
+###End Hidden Admin Account Creation
 
 ###Misc. Output and reminders to screen
-#
-#If intune/ms company portal, log in
-#
-#Start Microsoft Word
-#   Log into Office 365
-#Start Outlook
-#   Log into Office 365
-#Zoom for OWA
-#   https://appsource.microsoft.com/en-us/product/office/WA104381712?tab=Overview
-#   https://outlook.office.com/mail/options/calendar/eventAndInvitations
-#Zoom for Outlook
-#   Install the Outlook add-in
-    # Open Outlook and sign in to your account.
-    # Switch to Mail view, click the ellipsis button , and then select Get Add-ins. Outlook will open a browser to manage your add-ins.
-    # Search for Zoom for Outlook, or switch to the Admin-managed tab to view add-ins made available by your account admins. 
-    # Click on Zoom for Outlook and then click Add. 
-# Optional: Outlook Calendar for Slack
-# 
-#Edge Security Settings, sync'd with account
-#zsh prompt, apple
-#apple id
-#Taskbar clean up
-#terminal prefferences 
-#finder prefferences
-#Log into Chrome
-#Log into Contacts/Google Workplace
-#Apple Account only sync/enable: Contacts, Find my Mac, Siri
-#HW Setup including mouse, keybaord, dock
-#Set screenshots folder
-#  mkdir ~/Documents/Screen\ Shots
-#  defaults write com.apple.screencapture location "~/Documents/Screen Shots"
-###
+echo
+echo
+echo "$(tput setaf 5)==Miscellaneous Steps and Optional Steps=="
+echo "$(tput setaf 4)· If Microsoft Intune/Company Portal is installed, start it"
+echo "$(tput setaf 4)· If Microsoft Word is installed, start it"
+echo "$(tput setaf 4)· If Microsoft Excel is installed, start it"
+echo "$(tput setaf 4)· If Microsoft PowerPoint is installed, start it"
+echo "$(tput setaf 4)· If Microsoft Outlook is installed, start it, and..."
+echo "$(tput setaf 6)  · Install Zoom for Outlook"
+echo "$(tput setaf 6)    Open Outlook and sign in to your account."
+echo "$(tput setaf 6)    Switch to Mail view, click the ellipsis button , and then select Get Add-ins. "
+echo "$(tput setaf 6)    Outlook will open a browser to manage your add-ins."
+echo "$(tput setaf 6)    Search for Zoom for Outlook, "
+echo "$(tput setaf 6)     or switch to the Admin-managed tab to view add-ins made available by your account admins."
+echo "$(tput setaf 6)    Click on Zoom for Outlook and then click Add."
+echo "$(tput setaf 4)· Sync Google Contacts with Apple Contacts by adding a Gmail account"
+echo "$(tput setaf 6)  · May require Chrome to be default browser during setup, can switch after"
+echo "$(tput setaf 4)· If Microsoft Edge is installed, start it and double check Security & Privacy prefferences. Make them Strict"
+echo "$(tput setaf 4)· Zoom for Outlook Web can be installed at:"
+echo "$(tput setaf 6)    https://appsource.microsoft.com/en-us/product/office/WA104381712?tab=Overview"
+echo "$(tput setaf 6)    or https://outlook.office.com/mail/options/calendar/eventAndInvitations"
+echo "$(tput setaf 4)· Change prompt in .zshrc to, for example, apple"
+echo "$(tput setaf 4)· Remove unwanted apps from the menu and task bars"
+echo "$(tput setaf 4)· Adjust Finder prefferences"
+echo "$(tput setaf 4)· Install any required hardware/dock drivers (may require temp admin perms)"
+echo "$(tput setaf 4)· Change Screen Shot location"
+echo "$(tput setaf 6)   mkdir ~/Documents/Screen\ Shots"
+echo "$(tput setaf 6)   defaults write com.apple.screencapture location '~/Documents/Screen Shots'"
+echo "$(tput setaf 4)· Enable Apple Account"
+echo "$(tput setaf 6)  · Sync only Contacts, Find my Mac"
+###End Misc. Output and reminders to screen
 
 
 
