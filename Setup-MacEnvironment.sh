@@ -225,8 +225,6 @@ function install_wireshark () {
 }
 ###End Functions
 
-####Working code
-
 #Set logfile
 logfile=~/Documents/Setup-MacEnvironment.log
 
@@ -603,9 +601,10 @@ fi
 ###End Hidden Admin Account Creation
 
 ###Misc. Output and reminders to screen
+##Some of these will be automated at a later date
 echo
 echo
-echo "$(tput setaf 5)==Miscellaneous Steps and Optional Steps=="
+echo "$(tput setaf 5)Miscellaneous and Optional Steps:"
 echo "$(tput setaf 4)· If Microsoft Intune/Company Portal is installed, start it"
 echo "$(tput setaf 4)· If Microsoft Word is installed, start it"
 echo "$(tput setaf 4)· If Microsoft Excel is installed, start it"
@@ -633,6 +632,8 @@ echo "$(tput setaf 6)   mkdir ~/Documents/Screen\ Shots"
 echo "$(tput setaf 6)   defaults write com.apple.screencapture location '~/Documents/Screen Shots'"
 echo "$(tput setaf 4)· Enable Apple Account"
 echo "$(tput setaf 6)  · Sync only Contacts, Find my Mac"
+echo
+echo
 ###End Misc. Output and reminders to screen
 
 
