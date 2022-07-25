@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.21.1655
+# Version: 2022.07.25.1543
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -609,6 +609,7 @@ echo "$(tput setaf 4)· If Microsoft Intune/Company Portal is installed, start i
 echo "$(tput setaf 4)· If Microsoft Word is installed, start it"
 echo "$(tput setaf 4)· If Microsoft Excel is installed, start it"
 echo "$(tput setaf 4)· If Microsoft PowerPoint is installed, start it"
+echo "$(tput setaf 4)· If Microsoft OneDrive is installed, start it"
 echo "$(tput setaf 4)· If Microsoft Outlook is installed, start it, and..."
 echo "$(tput setaf 6)  · Install Zoom for Outlook"
 echo "$(tput setaf 6)    Open Outlook and sign in to your account."
@@ -623,7 +624,7 @@ echo "$(tput setaf 4)· If Microsoft Edge is installed, start it and double chec
 echo "$(tput setaf 4)· Zoom for Outlook Web can be installed at:"
 echo "$(tput setaf 6)    https://appsource.microsoft.com/en-us/product/office/WA104381712?tab=Overview"
 echo "$(tput setaf 6)    or https://outlook.office.com/mail/options/calendar/eventAndInvitations"
-echo "$(tput setaf 4)· Change prompt in .zshrc to, for example, apple"
+echo "$(tput setaf 4)· Change prompt in .zshrc, example apple"
 echo "$(tput setaf 4)· Remove unwanted apps from the menu and task bars"
 echo "$(tput setaf 4)· Adjust Finder prefferences"
 echo "$(tput setaf 4)· Install any required hardware/dock drivers (may require temp admin perms)"
