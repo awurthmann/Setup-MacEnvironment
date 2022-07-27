@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.27.1349
+# Version: 2022.07.27.1636
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -24,8 +24,6 @@
 # Output: Standard Out, Info Log and Error Log files
 #
 # Notes:  
-#   Latest version, which added some error handling, has not been tested on a fresh install.
-#    Functionality the same as previous version.
 #   I am considering adding https://github.com/clintmod/macprefs to save and reload prefferences.
 # --------------------------------------------------------------------------------------------
 
@@ -113,7 +111,7 @@ function log_and_color () {
         -c|--color) shift; color=$1 ;;
         -f|--file) shift; files+=("${1-}") ;;
         --) shift; break ;; # end of arguments
-        -*) log -e "log: invalid option '$1'"; return 1;;
+        -*) echo -e "log_and_color: invalid option '$1'"; return 1;;
         *) break ;; # start of message
         esac
         shift
@@ -142,7 +140,6 @@ function install_xcode () {
     echo "$(tput setaf 3)Ignore any errors above related to xcode-select"
     log_and_color -i -f $logfile "Running: xcode-select --install"
 
-    #osascript -e 'tell app "Terminal" to do script "xcode-select --install"'
     xcode-select --install
 
     log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to start"
@@ -235,8 +232,9 @@ echo "$(tput setaf 13)IMPORTANT NOTE:"
 echo "$(tput setaf 12)This script may require several restarts of the script"
 echo "$(tput setaf 12)or system reboots to fully complete. A log file is "
 echo "$(tput setaf 12)located at: $logfile"
-echo "$(tput setaf 12)Once the script has fully completed a message on the"
-echo "$(tput setaf 12)screen and in the log will read: 'Setup script complete.'"
+echo "$(tput setaf 12)Once the script has completed a message on the screen"
+echo "$(tput setaf 12)and in the log will read: 'Setup script complete.'"
+echo
 ##End Start Message
 
 ###Admin Check
@@ -265,9 +263,8 @@ if ! xcode-select -p > /dev/null ; then
         # done
     else
         log_and_color -e -f $logfile "ERROR: Command Line Developer Tools are not installed. Exiting"
+        exit
     fi
-    ##Reboot & exit no longer required for xcode
-    #exit
 fi
 ###End Xcode Install
 
@@ -389,7 +386,7 @@ for stdapp in "${STDAPPS[@]}" ; do
     VALUE="${stdapp##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install standard app $KEY? (y or n): " yn
@@ -418,7 +415,7 @@ for msapp in "${MSAPPS[@]}" ; do
     VALUE="${msapp##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
@@ -444,7 +441,7 @@ for sectool in "${SECTOOLS[@]}" ; do
     VALUE="${sectool##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
@@ -461,7 +458,7 @@ done
 
 ###TheHarvester Install
 if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
-	echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
+	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
     while true; do
         read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
