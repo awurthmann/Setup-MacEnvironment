@@ -149,13 +149,13 @@ function install_xcode () {
     wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Command Line Developer Tools install started"
-        log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to stop"
+        log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to complete"
         wait_app_stop "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
         if [ $? -eq 0 ]; then
             log_and_color -s -f $logfile "Command Line Developer Tools install completed"
             return 0
         else
-            log_and_color -e -f $logfile "ERROR: Command Line Developer Tools install did not stop in the allotted time period"
+            log_and_color -e -f $logfile "ERROR: Command Line Developer Tools install did not complete in the allotted time period"
             return 1
         fi
     else
@@ -226,11 +226,18 @@ function install_wireshark () {
 }
 ###End Functions
 
-##Start
-echo;echo
-
 #Set logfile
 logfile=~/Documents/Setup-MacEnvironment.log
+
+##Start Message
+echo;echo
+echo "$(tput setaf 13)IMPORTANT NOTE:"
+echo "$(tput setaf 12)This script may require several restarts of the script"
+echo "$(tput setaf 12)or system reboots to fully complete. A log file is "
+echo "$(tput setaf 12)located at: $logfile"
+echo "$(tput setaf 12)Once the script has fully completed a message on the"
+echo "$(tput setaf 12)screen and in the log will read: 'Setup script complete.'"
+##End Start Message
 
 ###Admin Check
 if [ `whoami` == root ]; then
@@ -245,20 +252,22 @@ if ! xcode-select -p > /dev/null ; then
     install_xcode
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Command Line Developer Tools were successfully installed"
-        while true; do
-            echo
-            echo "$(tput setaf 3)A reboot is required to continue"
-            read -p "$(tput setaf 3)Reboot now? (y or n): " yn
-            case $yn in
-                [Yy]* ) log_and_color -s -f $logfile "Rebooting";sudo shutdown -r now; break;;
-                [Nn]* ) log_and_color -e -f $logfile "Reboot required, exiting setup";break; exit;;
-                * ) echo "Please answer yes or no.";;
-            esac
-        done
+         ##Reboot & exit no longer required for xcode
+        # while true; do
+        #     echo
+        #     echo "$(tput setaf 3)A reboot is required to continue"
+        #     read -p "$(tput setaf 3)Reboot now? (y or n): " yn
+        #     case $yn in
+        #         [Yy]* ) log_and_color -s -f $logfile "Rebooting";sudo shutdown -r now; break;;
+        #         [Nn]* ) log_and_color -e -f $logfile "Reboot required, exiting setup";break; exit;;
+        #         * ) echo "Please answer yes or no.";;
+        #     esac
+        # done
     else
         log_and_color -e -f $logfile "ERROR: Command Line Developer Tools are not installed. Exiting"
     fi
-    exit
+    ##Reboot & exit no longer required for xcode
+    #exit
 fi
 ###End Xcode Install
 
@@ -309,7 +318,7 @@ if [ ! -f "$HOME/.vimrc" ]; then
 fi
 #End VIM Setup
 
-###Homebrew Setup (non-admin post install version)
+###Homebrew Setup (non-admin post setupt script version)
 if [ ! -d $HOME/homebrew ]; then
     log_and_color -i -f $logfile "Starting Homebrew Setup"
     cd $HOME
@@ -657,11 +666,12 @@ echo
 ###Finale
 while true; do
     echo
+    echo "$(tput setaf 5)Setup script complete."
     echo "$(tput setaf 3)A final reboot is required "
     read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
     case $yn in
-        [Yy]* ) log_and_color -s -f $logfile "Setup complete, rebooting";sudo shutdown -r now; break;;
-        [Nn]* ) log_and_color -w -f $logfile "Setup complete, reboot recommended";break; exit;;
+        [Yy]* ) log_and_color -s -f $logfile "Setup script complete, rebooting";sudo shutdown -r now; break;;
+        [Nn]* ) log_and_color -w -f $logfile "Setup script complete, reboot recommended";break; exit;;
         * ) echo "Please answer yes or no.";;
     esac
 done
