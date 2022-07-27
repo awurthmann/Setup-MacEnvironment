@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.25.1543
+# Version: 2022.07.27.0903
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -138,27 +138,29 @@ function log_and_color () {
 }
 
 function install_xcode () {
+    echo
+    echo "$(tput setaf 3)Ignore any errors above related to xcode-select"
     log_and_color -i -f $logfile "Running: xcode-select --install"
 
     #osascript -e 'tell app "Terminal" to do script "xcode-select --install"'
     xcode-select --install
 
-    log_and_color -i -f $logfile "Waiting for Xcode.app to start"
+    log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to start"
     wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
     if [ $? -eq 0 ]; then
-        log_and_color -s -f $logfile "Xcode.app started"
-        log_and_color -i -f $logfile "Waiting for Xcode.app to stop"
+        log_and_color -s -f $logfile "Command Line Developer Tools install started"
+        log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to stop"
         wait_app_stop "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
         if [ $? -eq 0 ]; then
-            log_and_color -s -f $logfile "Xcode.app completed"
+            log_and_color -s -f $logfile "Command Line Developer Tools install completed"
             log_and_color -w -f $logfile "Reboot required. Rebooting now"
             return 0
         else
-            log_and_color -e -f $logfile "ERROR: Xcode.app did not stop in the allotted time period"
+            log_and_color -e -f $logfile "ERROR: Command Line Developer Tools install did not stop in the allotted time period"
             return 1
         fi
     else
-        log_and_color -e -f $logfile "ERROR: Xcode.app did not start in the allotted time period"
+        log_and_color -e -f $logfile "ERROR: Command Line Developer Tools install did not start in the allotted time period"
         return 1
     fi
 }
@@ -225,6 +227,9 @@ function install_wireshark () {
 }
 ###End Functions
 
+##Start
+echo;echo
+
 #Set logfile
 logfile=~/Documents/Setup-MacEnvironment.log
 
@@ -237,12 +242,13 @@ fi
 
 ###Xcode Install
 if ! xcode-select -p > /dev/null ; then
+    echo
     install_xcode
     if [ $? -eq 0 ]; then
-        log_and_color -s -f $logfile "Xcode successfully installed"
+        log_and_color -s -f $logfile "Command Line Developer Tools were successfully installed"
         shutdown -r now
     else
-        log_and_color -e -f $logfile "ERROR: Xcode was not installed. Exiting"
+        log_and_color -e -f $logfile "ERROR: Command Line Developer Tools are not installed. Exiting"
     fi
     exit
 fi
