@@ -565,6 +565,7 @@ if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" =
     LOCAL_ADMIN_SHORTNAME="crash"
 else
     echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
+    read LOCAL_ADMIN_SHORTNAME
     if [ ! $LOCAL_ADMIN_SHORTNAME ]; then 
         log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
         exit
