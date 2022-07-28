@@ -18,9 +18,8 @@ means.
 	chmod +x ./Setup-MacEnvironment.sh
 	./Setup-MacEnvironment.sh
 
-OR (untested)
+OR
 Copy/Paste the line below into shell (running WITHOUT root/sudo privileges)
 ```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment
-.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
 ```
