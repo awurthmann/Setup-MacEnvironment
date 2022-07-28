@@ -145,6 +145,11 @@ function install_xcode () {
 
     xcode-select --install
 
+    echo
+    echo "$(tput setaf 3)NOTE:"
+    echo "$(tput setaf 3)Install may take some time to download and complete"
+    echo "$(tput setaf 3)This script will auto-exit, and will require restart, after 120 minutes"
+    echo
     log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to start"
     wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
     if [ $? -eq 0 ]; then
@@ -393,7 +398,7 @@ for stdapp in "${STDAPPS[@]}" ; do
 	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
 	echo 
         while true; do
-            read -p "$(tput setaf 3)Do you wish to install standard app $KEY? (y or n): " yn
+            read -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_app $VALUE; break;;
                 [Nn]* ) break; exit;;
