@@ -12,12 +12,15 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.27.1636
+# Version: 2022.07.27.1700
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
 #                chmod +x ./Setup-MacEnvironment.sh
 #                ./Setup-MacEnvironment.sh
+#           OR
+#               Copy/Paste the line below into shell (running WITHOUT root/sudo privileges)
+#               bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
 #	
 # Tested with: macOS 12.4 21F2081
 # Arguments: None
@@ -225,6 +228,7 @@ function install_wireshark () {
 
 #Set logfile
 logfile=~/Documents/Setup-MacEnvironment.log
+if [ ! -f "$logfile" ]; then touch $logfile; fi
 
 ##Start Message
 echo;echo
@@ -550,6 +554,7 @@ fi
 ###End Rename Computer
 
 ###Hidden Admin Account Creation
+echo
 echo "Enter full name of new admin user, default is Crash Override:"
 read LOCAL_ADMIN_FULLNAME
 
