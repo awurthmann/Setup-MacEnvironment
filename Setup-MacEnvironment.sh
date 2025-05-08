@@ -12,14 +12,14 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2022.07.27.1700
+# Version: 2025.05.08.1234
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
 #                chmod +x ./Setup-MacEnvironment.sh
 #                ./Setup-MacEnvironment.sh
 #           OR
-#               Copy/Paste the line below into shell (running WITHOUT root/sudo privileges)
+#               Copy/Paste the line below into shell (running WITH root/sudo privileges)
 #               bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
 #	
 # Tested with: macOS 12.4 21F2081
@@ -381,8 +381,12 @@ brewApps=( $(brew list --version | awk '{ print $1 }') )
 ###Standard App Installs
 STDAPPS=( "Slack:slack"
         "Google Chrome:google-chrome"
+        "Mozilla Firefox:firefox"
+        "DuckDuckGo Browser:duckduckgo"
         #"Zoom:zoom"
+        "Jabra Direct:jabra-direct"
         "Visual Studio Code:visual-studio-code"
+        "PyCharm Community Edition:pycharm-ce"
         "VLC Media Player:vlc" 
         "GitHub Desktop:github" 
         "Keka Archiver:keka"
