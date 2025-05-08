@@ -1,2 +1,8 @@
+# Ignore All, except the files below
+/*
 
-.DS_Store
+# Don't ignore these files
+!/.gitignore
+!/README.MD
+!/LICENSE
+!/Setup-MacEnvironment.sh
