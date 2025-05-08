@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2025.05.08.1420
+# Version: 2025.05.08.1620
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -295,20 +295,41 @@ if [ ! -f "$HOME/.vimrc" ]; then
 fi
 ### End VIM Setup
 
+# Detect Architecture and set Homebrew Prefix
+if [[ "$(uname -m)" == "arm64" ]]; then
+    HOMEBREW_PREFIX="/opt/homebrew"
+else
+    HOMEBREW_PREFIX="/usr/local"
+fi
 
-###Homebrew Setup (non-admin post setupt script version)
-if [ ! -d $HOME/homebrew ]; then
+### Homebrew Setup (Official Installer, Apple Silicon & Intel aware)
+if ! command -v brew &> /dev/null; then
     log_and_color -i -f $logfile "Starting Homebrew Setup"
-    cd $HOME
-    mkdir homebrew
-    curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
-    eval "$(homebrew/bin/brew shellenv)"
+
+    # Run Non‑Interactive Installer
+    NONINTERACTIVE=1 /bin/bash -c \
+      "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     brew update --force --quiet
     chmod -R go-w "$(brew --prefix)/share/zsh"
-    export PATH=$PATH:$HOME/homebrew/bin
-    echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
-    log_and_color -g -f $logfile "Homebrew Setup Complete"
+    eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
+    echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> .zshrc
+    log_and_color -s -f $logfile "Homebrew Setup Complete"
 fi
+
+
+###Homebrew Setup (non-admin post setupt script version)
+# if [ ! -d $HOME/homebrew ]; then
+#     log_and_color -i -f $logfile "Starting Homebrew Setup"
+#     cd $HOME
+#     mkdir homebrew
+#     curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
+#     eval "$(homebrew/bin/brew shellenv)"
+#     brew update --force --quiet
+#     chmod -R go-w "$(brew --prefix)/share/zsh"
+#     export PATH=$PATH:$HOME/homebrew/bin
+#     echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> .zshrc
+#     log_and_color -g -f $logfile "Homebrew Setup Complete"
+# fi
 ###End Homebrew Setup (non-admin post install version)
 
 
@@ -326,26 +347,26 @@ if [ ! -d $HOME/.oh-my-zsh ]; then
 else
 	if tail -n 1 $logfile | grep -q "Starting oh-my-zsh Setup"; then
 		log_and_color -g -f $logfile "oh my zsh Setup Complete"		
-		if [[ ! ":$PATH:" == *"$HOME/homebrew/bin"* ]]; then export PATH=$PATH:$HOME/homebrew/bin; fi
+		if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
-        if ! tail -n 5 $HOME/.zshrc | grep -q "HOME/homebrew/bin"; then
+        if ! tail -n 5 $HOME/.zshrc | grep -q "HOMEBREW_PREFIX/bin"; then
     		echo "" >> $HOME/.zshrc
     		echo "# Added by $USER" >> $HOME/.zshrc
-    		echo "export PATH=\$PATH:\$HOME/homebrew/bin" >> $HOME/.zshrc
+    		echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
         fi
 	fi
 fi
 
-if [ ! -f $HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+if [ ! -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     	install_tool zsh-syntax-highlighting
-	if [ -f $HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-		 echo "source \$HOME/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
+	if [ -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+		 echo "source \$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
 	fi
 fi	
 ###End Shell Setup
 
 ###Double Check homebrew is in PATH
-if [[ ! ":$PATH:" == *"$HOME/homebrew/bin"* ]]; then export PATH=$PATH:$HOME/homebrew/bin; fi
+if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
 ###Homebrew Inventory
 brewApps=( $(brew list --version | awk '{ print $1 }') )
