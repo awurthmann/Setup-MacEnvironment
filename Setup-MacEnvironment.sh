@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2025.05.08.1234
+# Version: 2025.05.08.1420
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -259,17 +259,6 @@ if ! xcode-select -p > /dev/null ; then
     install_xcode
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Command Line Developer Tools were successfully installed"
-         ##Reboot & exit no longer required for xcode
-        # while true; do
-        #     echo
-        #     echo "$(tput setaf 3)A reboot is required to continue"
-        #     read -p "$(tput setaf 3)Reboot now? (y or n): " yn
-        #     case $yn in
-        #         [Yy]* ) log_and_color -s -f $logfile "Rebooting";sudo shutdown -r now; break;;
-        #         [Nn]* ) log_and_color -e -f $logfile "Reboot required, exiting setup";break; exit;;
-        #         * ) echo "Please answer yes or no.";;
-        #     esac
-        # done
     else
         log_and_color -e -f $logfile "ERROR: Command Line Developer Tools are not installed. Exiting"
         exit
@@ -289,40 +278,23 @@ if ! grep "Software update successfully completed" $logfile > /dev/null; then
         exit
     fi
 fi
-
 ###EndInstall Updates/OS Patches
 
 
-###VIM Setup
-#This should be a file stored in GitHub then pulled down but for now this will do.
-
+### VIM Setup
+# Download a canonical .vimrc from GitHub if one doesn’t already exist
 if [ ! -f "$HOME/.vimrc" ]; then
-    log_and_color -i -f $logfile "Setting VIM Environment"
-    echo "set nocompatible" >> $HOME/.vimrc
-    echo "filetype on" >> $HOME/.vimrc
-    echo "filetype plugin on" >> $HOME/.vimrc
-    echo "filetype indent on" >> $HOME/.vimrc
-    echo "set term=builtin_ansi" >> $HOME/.vimrc
-    echo "syntax on" >> $HOME/.vimrc
-    echo "set number" >> $HOME/.vimrc
-    echo "set cursorline" >> $HOME/.vimrc
-    echo "set shiftwidth=4" >> $HOME/.vimrc
-    echo "set tabstop=4" >> $HOME/.vimrc
-    echo "set expandtab" >> $HOME/.vimrc
-    echo "set scrolloff=10" >> $HOME/.vimrc
-    echo "set incsearch" >> $HOME/.vimrc
-    echo "set ignorecase" >> $HOME/.vimrc
-    echo "set smartcase" >> $HOME/.vimrc
-    echo "set showcmd" >> $HOME/.vimrc
-    echo "set showmode" >> $HOME/.vimrc
-    echo "set showmatch" >> $HOME/.vimrc
-    echo "set hlsearch" >> $HOME/.vimrc
-    echo "set wildmenu" >> $HOME/.vimrc
-    echo "set wildmode=list:longest" >> $HOME/.vimrc
-    echo "set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx" >> $HOME/.vimrc
-    log_and_color -g -f $logfile "VIM Environment Setup complete"
+    log_and_color -i -f $logfile "Downloading .vimrc from GitHub"
+    curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/refs/heads/main/.vimrc \
+      -o "$HOME/.vimrc"
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile ".vimrc downloaded successfully"
+    else
+        log_and_color -e -f $logfile "ERROR: Failed to download .vimrc"
+    fi
 fi
-#End VIM Setup
+### End VIM Setup
+
 
 ###Homebrew Setup (non-admin post setupt script version)
 if [ ! -d $HOME/homebrew ]; then
