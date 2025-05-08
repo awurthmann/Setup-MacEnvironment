@@ -19,7 +19,7 @@ means.
 	./Setup-MacEnvironment.sh
 
 OR
-Copy/Paste the line below into shell (running WITHOUT root/sudo privileges)
+Copy/Paste the line below into shell (running WITH root/sudo privileges)
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
 ```

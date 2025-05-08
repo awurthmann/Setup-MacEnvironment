@@ -5,4 +5,5 @@
 !/.gitignore
 !/README.MD
 !/LICENSE
+!/.vimrc
 !/Setup-MacEnvironment.sh
