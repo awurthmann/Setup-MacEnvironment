@@ -306,11 +306,10 @@ fi
 if ! command -v brew &> /dev/null; then
     log_and_color -i -f $logfile "Starting Homebrew Setup"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    brew update --force --quiet
-    chmod -R go-w "$(brew --prefix)/share/zsh"
     eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
+    brew update --force --quiet
 
-    if ! tail -n 5 $HOME/.zshrc | grep -q "HOMEBREW_PREFIX/bin"; then
+    if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null | grep -q "HOMEBREW_PREFIX/bin"; then
         echo "" >> $HOME/.zshrc
         echo "# Added by $USER" >> $HOME/.zshrc
         echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
@@ -356,7 +355,7 @@ else
 		log_and_color -g -f $logfile "oh my zsh Setup Complete"		
 		if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
-        if ! tail -n 5 $HOME/.zshrc | grep -q "HOMEBREW_PREFIX/bin"; then
+        if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "HOMEBREW_PREFIX/bin"; then
     		echo "" >> $HOME/.zshrc
     		echo "# Added by $USER" >> $HOME/.zshrc
     		echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
