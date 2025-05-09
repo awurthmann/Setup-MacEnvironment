@@ -352,7 +352,7 @@ if [ ! -d $HOME/.oh-my-zsh ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 else
 	if tail -n 1 $logfile | grep -q "Starting oh-my-zsh Setup"; then
-		log_and_color -g -f $logfile "oh my zsh Setup Complete"		
+		log_and_color -s -f $logfile "oh my zsh Setup Complete"		
 		if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
         if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "HOMEBREW_PREFIX/bin"; then
@@ -517,11 +517,11 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
         if [ -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
 
         while true; do
-            read -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME: " yn
+            read -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME (y or n): " yn
             case $yn in
                 [Yy]* ) rename=true; break;;
                 [Nn]* ) break; exit;;
-                * ) echo "Please answer yes or no.";;
+                * ) echo "Please answer Y for yes or N for no.";;
             esac
         done
 
@@ -530,23 +530,23 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
 
             sudo scutil --set HostName "$NEW_HOST_NAME.$NEW_DOMAIN_NAME"
             if [ $? -eq 0 ]; then
-                log_and_color -i -g $logfile "HostName set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+                log_and_color -i -f $logfile "HostName set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
             else
-                log_and_color -i -g $logfile "ERROR: HostName was not set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
+                log_and_color -e -f $logfile "ERROR: HostName was not set to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
             fi
 
             sudo scutil --set LocalHostName "$NEW_HOST_NAME"
             if [ $? -eq 0 ]; then
-                log_and_color -i -g $logfile "LocalHostName set to $NEW_HOST_NAME"
+                log_and_color -i -f $logfile "LocalHostName set to $NEW_HOST_NAME"
             else
-                log_and_color -i -g $logfile "ERROR: LocalHostName was not set to $NEW_HOST_NAME"
+                log_and_color -e -f $logfile "ERROR: LocalHostName was not set to $NEW_HOST_NAME"
             fi
 
             sudo scutil --set ComputerName "$NEW_HOST_NAME"
             if [ $? -eq 0 ]; then
-                log_and_color -i -g $logfile "ComputerName set to $NEW_HOST_NAME"
+                log_and_color -i -f $logfile "ComputerName set to $NEW_HOST_NAME"
             else
-                log_and_color -i -g $logfile "ERROR: ComputerName was not set to $NEW_HOST_NAME"
+                log_and_color -e -f $logfile "ERROR: ComputerName was not set to $NEW_HOST_NAME"
             fi
 
             sudo dscacheutil -flushcache
