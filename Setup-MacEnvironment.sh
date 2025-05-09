@@ -305,14 +305,21 @@ fi
 ### Homebrew Setup (Official Installer, Apple Silicon & Intel aware)
 if ! command -v brew &> /dev/null; then
     log_and_color -i -f $logfile "Starting Homebrew Setup"
-
-    # Run Non‑Interactive Installer
-    NONINTERACTIVE=1 /bin/bash -c \
-      "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     brew update --force --quiet
     chmod -R go-w "$(brew --prefix)/share/zsh"
     eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
-    echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> .zshrc
+
+    if ! tail -n 5 $HOME/.zshrc | grep -q "HOMEBREW_PREFIX/bin"; then
+        echo "" >> $HOME/.zshrc
+        echo "# Added by $USER" >> $HOME/.zshrc
+        echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
+    fi
+
+    if ! command -v brew &> /dev/null; then
+        log_and_color -e -f $logfile "ERROR: Homebrew was not installed. Exiting"
+        exit
+    fi
     log_and_color -s -f $logfile "Homebrew Setup Complete"
 fi
 
