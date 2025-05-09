@@ -366,7 +366,7 @@ fi
 if [ ! -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     	install_tool zsh-syntax-highlighting
 	if [ -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-		 echo "source \$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
+		 echo "source \$(HOMEBREW_PREFIX)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> $HOME/.zshrc
 	fi
 fi	
 ###End Shell Setup
