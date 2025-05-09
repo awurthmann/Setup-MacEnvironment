@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2025.05.08.1620
+# Version: 2025.05.09.0717
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -309,10 +309,10 @@ if ! command -v brew &> /dev/null; then
     eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
     brew update --force --quiet
 
-    if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null | grep -q "HOMEBREW_PREFIX/bin"; then
+    if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "$HOMEBREW_PREFIX/bin"; then
         echo "" >> $HOME/.zshrc
         echo "# Added by $USER" >> $HOME/.zshrc
-        echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
+        echo "export PATH=\$PATH:${HOMEBREW_PREFIX}/bin" >> "$HOME/.zshrc"
     fi
 
     if ! command -v brew &> /dev/null; then
@@ -355,10 +355,10 @@ else
 		log_and_color -s -f $logfile "oh my zsh Setup Complete"		
 		if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
-        if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "HOMEBREW_PREFIX/bin"; then
+        if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "$HOMEBREW_PREFIX/bin"; then
     		echo "" >> $HOME/.zshrc
     		echo "# Added by $USER" >> $HOME/.zshrc
-    		echo "export PATH=\$PATH:\$HOMEBREW_PREFIX/bin" >> $HOME/.zshrc
+            echo "export PATH=\$PATH:${HOMEBREW_PREFIX}/bin" >> "$HOME/.zshrc"
         fi
 	fi
 fi
@@ -366,7 +366,9 @@ fi
 if [ ! -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     	install_tool zsh-syntax-highlighting
 	if [ -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-		 echo "source ${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> "$HOME/.zshrc"
+        "" >> $HOME/.zshrc
+        "# Added by $USER" >> $HOME/.zshrc
+		echo "source ${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> "$HOME/.zshrc"
 	fi
 fi	
 ###End Shell Setup
