@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2025.05.09.0717
+# Version: 2025.05.13.0728
 # Description: Setup Mac Environment on my Test System(s)
 # 
 # Instructions: Download Setup-MacEnvironment.sh
@@ -22,7 +22,8 @@
 #               Copy/Paste the line below into shell (running WITH root/sudo privileges)
 #               bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
 #	
-# Tested with: macOS 12.4 21F2081
+# Tested with: macOS 15.5 (24F74)
+#  system_profiler SPSoftwareDataType | awk -F 'System Version: ' '/System Version:/ {print $2}'
 # Arguments: None
 # Output: Standard Out, Info Log and Error Log files
 #
