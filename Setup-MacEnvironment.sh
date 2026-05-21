@@ -905,12 +905,46 @@ if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
         LAW_PLIST="/Library/LaunchDaemons/com.user.firewall-location-aware.plist"
         BASE_URL="https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main"
 
+        echo
+        read -p "$(tput setaf 3)Enter your home subnet prefix (default 192.168.1.): " LAW_SUBNET
+        LAW_SUBNET="${LAW_SUBNET:-192.168.1.}"
+        [[ "$LAW_SUBNET" != *. ]] && LAW_SUBNET="${LAW_SUBNET}."
+        log_and_color -i -f $logfile "Home subnet prefix set to: $LAW_SUBNET"
+
+        read -p "$(tput setaf 3)Enter your gateway IP address (default 192.168.1.1): " LAW_GATEWAY_IP
+        LAW_GATEWAY_IP="${LAW_GATEWAY_IP:-192.168.1.1}"
+        log_and_color -i -f $logfile "Gateway IP set to: $LAW_GATEWAY_IP"
+
+        echo
+        echo "$(tput setaf 6)To obtain your gateway MAC address, in another terminal run:"
+        echo "$(tput setaf 6)  ping -c 1 $LAW_GATEWAY_IP && arp $LAW_GATEWAY_IP"
+        echo
+        LAW_GATEWAY_MAC=""
+        while [ -z "$LAW_GATEWAY_MAC" ]; do
+            read -p "$(tput setaf 3)Enter your gateway MAC address: " LAW_GATEWAY_MAC
+            if [ -z "$LAW_GATEWAY_MAC" ]; then
+                echo "$(tput setaf 1)Gateway MAC address is required."
+            fi
+        done
+        LAW_GATEWAY_MAC=$(echo "$LAW_GATEWAY_MAC" | tr '[:upper:]' '[:lower:]')
+        log_and_color -i -f $logfile "Gateway MAC set to: $LAW_GATEWAY_MAC"
+
         log_and_color -i -f $logfile "Downloading firewall-location-aware.sh"
         sudo curl -fsSL "${BASE_URL}/firewall-location-aware.sh" -o "$LAW_SCRIPT"
         if [ $? -eq 0 ]; then
-            sudo chmod 755 "$LAW_SCRIPT"
-            sudo chown root:wheel "$LAW_SCRIPT"
-            log_and_color -s -f $logfile "firewall-location-aware.sh installed to $LAW_SCRIPT"
+            log_and_color -i -f $logfile "Configuring network values in firewall-location-aware.sh"
+            sudo sed -i '' \
+                -e "s|YOUR_HOME_SUBNET_PREFIX\.|${LAW_SUBNET}|g" \
+                -e "s|YOUR_GATEWAY_IP|${LAW_GATEWAY_IP}|g" \
+                -e "s|YOUR_GATEWAY_MAC|${LAW_GATEWAY_MAC}|g" \
+                "$LAW_SCRIPT"
+            if [ $? -eq 0 ]; then
+                sudo chmod 755 "$LAW_SCRIPT"
+                sudo chown root:wheel "$LAW_SCRIPT"
+                log_and_color -s -f $logfile "firewall-location-aware.sh configured and installed to $LAW_SCRIPT"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to configure firewall-location-aware.sh"
+            fi
         else
             log_and_color -e -f $logfile "ERROR: Failed to download firewall-location-aware.sh"
         fi
@@ -934,7 +968,7 @@ if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
     else
         log_and_color -w -f $logfile "Location-Aware Firewall setup skipped"
     fi
-    unset setup_law_firewall
+    unset setup_law_firewall LAW_SUBNET LAW_GATEWAY_IP LAW_GATEWAY_MAC
 fi
 ###End Location-Aware Firewall Setup
 
