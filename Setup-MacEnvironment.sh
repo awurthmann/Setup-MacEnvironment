@@ -12,22 +12,22 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2025.05.13.0728
+# Version: 2026.05.20.1200
 # Description: Setup Mac Environment on my Test System(s)
-# 
+#
 # Instructions: Download Setup-MacEnvironment.sh
 #                chmod +x ./Setup-MacEnvironment.sh
 #                ./Setup-MacEnvironment.sh
 #           OR
 #               Copy/Paste the line below into shell (running WITH root/sudo privileges)
 #               bash -c "$(curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main/Setup-MacEnvironment.sh)"
-#	
+#
 # Tested with: macOS 15.5 (24F74)
 #  system_profiler SPSoftwareDataType | awk -F 'System Version: ' '/System Version:/ {print $2}'
 # Arguments: None
 # Output: Standard Out, Info Log and Error Log files
 #
-# Notes:  
+# Notes:
 #   I am considering adding https://github.com/clintmod/macprefs to save and reload prefferences.
 # --------------------------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ function wait_app_start () {
     appCheck=true
     checkCount=1
 
-    if pgrep -f "$appPath" > /dev/null ; then 
+    if pgrep -f "$appPath" > /dev/null ; then
         appCheck=false
     fi
 
@@ -68,7 +68,7 @@ function wait_app_stop () {
     appCheck=true
     checkCount=1
 
-    if ! pgrep -f "$appPath" > /dev/null ; then 
+    if ! pgrep -f "$appPath" > /dev/null ; then
         appCheck=false
     fi
 
@@ -184,7 +184,7 @@ function install_tool () {
 function install_app () {
     log_and_color -s -f $logfile "Starting install for: $1"
     brew install --cask $1
-    #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"   
+    #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "$1 successfully installed"
     else
@@ -228,7 +228,7 @@ function install_wireshark () {
         fi
     else
         log_and_color -e -f $logfile "ERROR: Wireshark was not installed. Exiting"
-    fi  
+    fi
 }
 ###End Functions
 
@@ -268,7 +268,7 @@ fi
 ###End Xcode Install
 
 ###Install Updates/OS Patches
-if ! grep "Software update successfully completed" $logfile > /dev/null; then 
+if ! grep "Software update successfully completed" $logfile > /dev/null; then
 	log_and_color -i -f $logfile "Running: softwareupdate --all --install --force"
 	sudo softwareupdate --all --install --force
     #&& log_and_color -s -f $logfile "Software update successfully completed" || log_and_color -e -f $logfile "ERROR: Software update failed"
@@ -283,7 +283,7 @@ fi
 
 
 ### VIM Setup
-# Download a canonical .vimrc from GitHub if one doesn’t already exist
+# Download a canonical .vimrc from GitHub if one doesn't already exist
 if [ ! -f "$HOME/.vimrc" ]; then
     log_and_color -i -f $logfile "Downloading .vimrc from GitHub"
     curl -fsSL https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/refs/heads/main/.vimrc \
@@ -303,7 +303,7 @@ else
     HOMEBREW_PREFIX="/usr/local"
 fi
 
-### Homebrew Setup (Official Installer, Apple Silicon & Intel aware)
+### Homebrew Setup (Official Installer, Apple Silicon & Intel aware)
 if ! command -v brew &> /dev/null; then
     log_and_color -i -f $logfile "Starting Homebrew Setup"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -347,13 +347,13 @@ if [ ! -d $HOME/.oh-my-zsh ]; then
     echo "$(tput setaf 6)Press any key to continue"
     read any
     unset any
-	
+
 	log_and_color -w -f $logfile "oh-my-zsh setup stops this setup script during install. To complete setup, restart the script"
 	log_and_color -i -f $logfile "Starting oh-my-zsh Setup"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 else
 	if tail -n 1 $logfile | grep -q "Starting oh-my-zsh Setup"; then
-		log_and_color -s -f $logfile "oh my zsh Setup Complete"		
+		log_and_color -s -f $logfile "oh my zsh Setup Complete"
 		if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
         if ! tail -n 5 "$HOME/.zshrc" 2>/dev/null| grep -q "$HOMEBREW_PREFIX/bin"; then
@@ -371,7 +371,7 @@ if [ ! -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting
         "# Added by $USER" >> $HOME/.zshrc
 		echo "source ${HOMEBREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> "$HOME/.zshrc"
 	fi
-fi	
+fi
 ###End Shell Setup
 
 ###Double Check homebrew is in PATH
@@ -390,11 +390,15 @@ STDAPPS=( "Slack:slack"
         "Jabra Direct:jabra-direct"
         "Visual Studio Code:visual-studio-code"
         "PyCharm Community Edition:pycharm-ce"
-        "VLC Media Player:vlc" 
-        "GitHub Desktop:github" 
+        "VLC Media Player:vlc"
+        "GitHub Desktop:github"
         "Keka Archiver:keka"
         "AppCleaner:appcleaner"
         "Signal:signal"
+        "OnlySwitch:only-switch"
+        "Maccy Clipboard Manager:maccy"
+        "ProNotes:pronotes" #ProNotes is a paid app — purchase required separately
+        "Cyberduck:cyberduck"
     )
 
 for stdapp in "${STDAPPS[@]}" ; do
@@ -403,7 +407,7 @@ for stdapp in "${STDAPPS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo 
+	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
             case $yn in
@@ -432,7 +436,7 @@ for msapp in "${MSAPPS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo 
+	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
             case $yn in
@@ -458,7 +462,7 @@ for sectool in "${SECTOOLS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
 	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo 
+	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
             case $yn in
@@ -475,7 +479,7 @@ done
 ###TheHarvester Install
 if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
 	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo 
+	echo
     while true; do
         read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
         case $yn in
@@ -504,7 +508,7 @@ fi
 
 
 ###Rename Computer
-if ! grep "Renaming computer to" $logfile > /dev/null; then 
+if ! grep "Renaming computer to" $logfile > /dev/null; then
     while true; do
         read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
         case $yn in
@@ -514,8 +518,8 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
         esac
     done
 
-    if [ ! -z "$NEW_HOST_NAME" ]; then 
-        
+    if [ ! -z "$NEW_HOST_NAME" ]; then
+
         read -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
         if [ -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
 
@@ -573,12 +577,12 @@ read LOCAL_ADMIN_FULLNAME
 if [ ! $LOCAL_ADMIN_FULLNAME ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
 log_and_color -i -f $logfile "Local admin user full name set to: $LOCAL_ADMIN_FULLNAME"
 
-if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then 
+if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then
     LOCAL_ADMIN_SHORTNAME="crash"
 else
     echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
     read LOCAL_ADMIN_SHORTNAME
-    if [ ! $LOCAL_ADMIN_SHORTNAME ]; then 
+    if [ ! $LOCAL_ADMIN_SHORTNAME ]; then
         log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
         exit
     fi
@@ -625,7 +629,7 @@ echo "sudo dseditgroup -o edit -d $USER -t user admin" > $HOME/Public/remove-adm
 sudo chmod +x $HOME/Public/remove-admin.sh
 
 
-if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then 
+if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then
     log_and_color -i -f $logfile "Removing $USER's admin privileges"
     sudo dseditgroup -o edit -d $USER -t user admin
     if [ $? -eq 0 ]; then
@@ -638,6 +642,374 @@ else
     log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
 fi
 ###End Hidden Admin Account Creation
+
+###Hardening Disable NetBIOS
+if ! grep "Hardening Disable NetBIOS complete" $logfile > /dev/null; then
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Do you wish to disable NetBIOS (hardening)? (y or n): " yn
+        case $yn in
+            [Yy]* ) harden_netbios=true; break;;
+            [Nn]* ) harden_netbios=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$harden_netbios" = true ]; then
+        NETBIOS_LABEL="com.apple.netbiosd"
+        NETBIOS_PLIST="/System/Library/LaunchDaemons/${NETBIOS_LABEL}.plist"
+        NSMB_CONF="/etc/nsmb.conf"
+
+        if [ ! -f "$NETBIOS_PLIST" ]; then
+            log_and_color -w -f $logfile "WARN: $NETBIOS_PLIST not found — skipping NetBIOS hardening"
+        else
+            log_and_color -i -f $logfile "Disabling $NETBIOS_LABEL launchd job"
+            sudo launchctl disable "system/${NETBIOS_LABEL}"
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "$NETBIOS_LABEL disabled successfully"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to set disabled override for $NETBIOS_LABEL"
+            fi
+
+            log_and_color -i -f $logfile "Attempting to unload $NETBIOS_LABEL if currently loaded"
+            sudo launchctl bootout system "$NETBIOS_PLIST" 2>/dev/null
+            log_and_color -i -f $logfile "$NETBIOS_LABEL bootout attempted (may already be unloaded — this is normal)"
+
+            log_and_color -i -f $logfile "Writing SMB client hardening settings to $NSMB_CONF"
+            printf '[default]\nprotocol_vers_map=6\nport445=no_netbios\n' | sudo tee "$NSMB_CONF" > /dev/null
+            if [ $? -eq 0 ]; then
+                sudo chmod 0644 "$NSMB_CONF"
+                sudo chown root:wheel "$NSMB_CONF"
+                log_and_color -s -f $logfile "$NSMB_CONF written and permissions set"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to write $NSMB_CONF"
+            fi
+
+            disabled_state=$(sudo launchctl print-disabled system 2>/dev/null | awk -v label="$NETBIOS_LABEL" '$0 ~ label {print $3}' | tr -d ';')
+            if [ "$disabled_state" = "true" ]; then
+                log_and_color -s -f $logfile "Verified: $NETBIOS_LABEL disabled override is true"
+            else
+                log_and_color -w -f $logfile "WARN: $NETBIOS_LABEL disabled state reported as: ${disabled_state:-not found}"
+            fi
+
+            if ps aux | grep -i "[n]etbiosd" > /dev/null 2>&1; then
+                log_and_color -w -f $logfile "WARN: $NETBIOS_LABEL still appears to be running (will not restart after reboot)"
+            else
+                log_and_color -s -f $logfile "Verified: $NETBIOS_LABEL is not running"
+            fi
+
+            log_and_color -i -f $logfile "To re-enable: sudo launchctl enable system/$NETBIOS_LABEL && sudo launchctl bootstrap system $NETBIOS_PLIST && sudo rm $NSMB_CONF"
+            log_and_color -s -f $logfile "Hardening Disable NetBIOS complete"
+        fi
+    else
+        log_and_color -w -f $logfile "Hardening Disable NetBIOS skipped"
+    fi
+    unset harden_netbios
+fi
+###End Hardening Disable NetBIOS
+
+###Hardening Disable Sharing Services
+if ! grep "Hardening Disable Sharing Services complete" $logfile > /dev/null; then
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Do you wish to disable sharing services (AFP, SMB, Screen Sharing, Printer Sharing, Remote Login, Remote Management)? (y or n): " yn
+        case $yn in
+            [Yy]* ) harden_sharing=true; break;;
+            [Nn]* ) harden_sharing=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$harden_sharing" = true ]; then
+
+        # AFP File Sharing
+        if launchctl list com.apple.AppleFileServer &>/dev/null; then
+            log_and_color -i -f $logfile "Disabling AFP File Sharing"
+            sudo launchctl disable system/com.apple.AppleFileServer
+            sudo launchctl bootout system /System/Library/LaunchDaemons/com.apple.AppleFileServer.plist 2>/dev/null
+            log_and_color -s -f $logfile "AFP File Sharing disabled"
+        else
+            log_and_color -i -f $logfile "AFP File Sharing already disabled"
+        fi
+
+        # SMB File Sharing
+        if launchctl list com.apple.smbd &>/dev/null; then
+            log_and_color -i -f $logfile "Disabling SMB File Sharing"
+            sudo launchctl disable system/com.apple.smbd
+            sudo launchctl bootout system /System/Library/LaunchDaemons/com.apple.smbd.plist 2>/dev/null
+            log_and_color -s -f $logfile "SMB File Sharing disabled"
+        else
+            log_and_color -i -f $logfile "SMB File Sharing already disabled"
+        fi
+
+        # Screen Sharing
+        if launchctl list com.apple.screensharing &>/dev/null; then
+            log_and_color -i -f $logfile "Disabling Screen Sharing"
+            sudo launchctl disable system/com.apple.screensharing
+            sudo launchctl bootout system /System/Library/LaunchDaemons/com.apple.screensharing.plist 2>/dev/null
+            log_and_color -s -f $logfile "Screen Sharing disabled"
+        else
+            log_and_color -i -f $logfile "Screen Sharing already disabled"
+        fi
+
+        # Printer Sharing
+        if cupsctl | grep -q 'SharePrinters=1'; then
+            log_and_color -i -f $logfile "Disabling Printer Sharing"
+            sudo cupsctl --no-share-printers
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Printer Sharing disabled"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to disable Printer Sharing"
+            fi
+        else
+            log_and_color -i -f $logfile "Printer Sharing already disabled"
+        fi
+
+        # Remote Login (SSH)
+        if launchctl list com.openssh.sshd &>/dev/null; then
+            log_and_color -i -f $logfile "Disabling Remote Login (SSH)"
+            sudo launchctl disable system/com.openssh.sshd
+            sudo launchctl bootout system /System/Library/LaunchDaemons/ssh.plist 2>/dev/null
+            log_and_color -s -f $logfile "Remote Login (SSH) disabled"
+        else
+            log_and_color -i -f $logfile "Remote Login (SSH) already disabled"
+        fi
+
+        # Remote Management (ARD)
+        if pgrep -x ARDAgent > /dev/null 2>&1; then
+            log_and_color -i -f $logfile "Disabling Remote Management (ARD)"
+            sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Remote Management (ARD) disabled"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to disable Remote Management (ARD)"
+            fi
+        else
+            log_and_color -i -f $logfile "Remote Management (ARD) already disabled"
+        fi
+
+        log_and_color -s -f $logfile "Hardening Disable Sharing Services complete"
+    else
+        log_and_color -w -f $logfile "Hardening Disable Sharing Services skipped"
+    fi
+    unset harden_sharing
+fi
+###End Hardening Disable Sharing Services
+
+###Hardening Enable Firewall
+if ! grep "Hardening Enable Firewall complete" $logfile > /dev/null; then
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Do you wish to enable the firewall with stealth mode and block all incoming connections? (y or n): " yn
+        case $yn in
+            [Yy]* ) harden_firewall=true; break;;
+            [Nn]* ) harden_firewall=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$harden_firewall" = true ]; then
+        FW="/usr/libexec/ApplicationFirewall/socketfilterfw"
+
+        if $FW --getglobalstate 2>&1 | grep -qiE 'enabled|on'; then
+            log_and_color -i -f $logfile "Firewall already enabled"
+        else
+            log_and_color -i -f $logfile "Enabling firewall"
+            sudo $FW --setglobalstate on
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Firewall enabled"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to enable firewall"
+            fi
+        fi
+
+        if $FW --getblockall 2>&1 | grep -qiE 'enabled|on'; then
+            log_and_color -i -f $logfile "Block all incoming connections already enabled"
+        else
+            log_and_color -i -f $logfile "Enabling block all incoming connections"
+            sudo $FW --setblockall on
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Block all incoming connections enabled"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to enable block all incoming connections"
+            fi
+        fi
+
+        if $FW --getstealthmode 2>&1 | grep -qiE 'enabled|on'; then
+            log_and_color -i -f $logfile "Stealth mode already enabled"
+        else
+            log_and_color -i -f $logfile "Enabling stealth mode"
+            sudo $FW --setstealthmode on
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Stealth mode enabled"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to enable stealth mode"
+            fi
+        fi
+
+        log_and_color -s -f $logfile "Hardening Enable Firewall complete"
+    else
+        log_and_color -w -f $logfile "Hardening Enable Firewall skipped"
+    fi
+    unset harden_firewall
+fi
+###End Hardening Enable Firewall
+
+###Hardening Enable Secure Keyboard Entry
+if ! grep "Hardening Enable Secure Keyboard Entry complete" $logfile > /dev/null; then
+    echo
+    log_and_color -w -f $logfile "NOTE: Secure Keyboard Entry applies to Terminal.app only. It may prevent text expanders, autocomplete tools, and password managers that monitor keyboard input from working."
+    while true; do
+        read -p "$(tput setaf 3)Do you wish to enable Secure Keyboard Entry for Terminal? (y or n): " yn
+        case $yn in
+            [Yy]* ) harden_ske=true; break;;
+            [Nn]* ) harden_ske=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$harden_ske" = true ]; then
+        current_ske=$(defaults read com.apple.Terminal SecureKeyboardEntry 2>/dev/null)
+        if [ "$current_ske" = "1" ]; then
+            log_and_color -i -f $logfile "Secure Keyboard Entry already enabled"
+        else
+            defaults write com.apple.Terminal SecureKeyboardEntry -bool true
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Secure Keyboard Entry enabled for Terminal"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to enable Secure Keyboard Entry"
+            fi
+        fi
+        log_and_color -s -f $logfile "Hardening Enable Secure Keyboard Entry complete"
+    else
+        log_and_color -w -f $logfile "Hardening Enable Secure Keyboard Entry skipped"
+    fi
+    unset harden_ske current_ske
+fi
+###End Hardening Enable Secure Keyboard Entry
+
+###Location-Aware Firewall Setup
+if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Do you wish to install the location-aware firewall? (y or n): " yn
+        case $yn in
+            [Yy]* ) setup_law_firewall=true; break;;
+            [Nn]* ) setup_law_firewall=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$setup_law_firewall" = true ]; then
+        LAW_SCRIPT="/usr/local/bin/firewall-location-aware.sh"
+        LAW_PLIST="/Library/LaunchDaemons/com.user.firewall-location-aware.plist"
+        BASE_URL="https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main"
+
+        log_and_color -i -f $logfile "Downloading firewall-location-aware.sh"
+        sudo curl -fsSL "${BASE_URL}/firewall-location-aware.sh" -o "$LAW_SCRIPT"
+        if [ $? -eq 0 ]; then
+            sudo chmod 755 "$LAW_SCRIPT"
+            sudo chown root:wheel "$LAW_SCRIPT"
+            log_and_color -s -f $logfile "firewall-location-aware.sh installed to $LAW_SCRIPT"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to download firewall-location-aware.sh"
+        fi
+
+        log_and_color -i -f $logfile "Downloading com.user.firewall-location-aware.plist"
+        sudo curl -fsSL "${BASE_URL}/com.user.firewall-location-aware.plist" -o "$LAW_PLIST"
+        if [ $? -eq 0 ]; then
+            sudo chmod 644 "$LAW_PLIST"
+            sudo chown root:wheel "$LAW_PLIST"
+            log_and_color -s -f $logfile "com.user.firewall-location-aware.plist installed to $LAW_PLIST"
+
+            sudo launchctl load -w "$LAW_PLIST"
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Location-Aware Firewall setup complete"
+            else
+                log_and_color -e -f $logfile "ERROR: Failed to load com.user.firewall-location-aware.plist"
+            fi
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to download com.user.firewall-location-aware.plist"
+        fi
+    else
+        log_and_color -w -f $logfile "Location-Aware Firewall setup skipped"
+    fi
+    unset setup_law_firewall
+fi
+###End Location-Aware Firewall Setup
+
+###PARA File System Setup
+if ! grep "PARA File System setup complete" $logfile > /dev/null; then
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Do you want to setup the PARA File System? (y/n, default y): " yn
+        yn=${yn:-y}
+        case $yn in
+            [Yy]* ) setup_para=true; break;;
+            [Nn]* ) setup_para=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+
+    if [ "$setup_para" = true ]; then
+        read -p "$(tput setaf 3)Where would you like to setup PARA? (default ~/Documents): " PARA_BASE
+        PARA_BASE="${PARA_BASE:-$HOME/Documents}"
+        PARA_BASE="${PARA_BASE/#\~/$HOME}"
+
+        log_and_color -i -f $logfile "Setting up PARA File System under $PARA_BASE"
+        mkdir -p "$PARA_BASE/_PROJECTS" && log_and_color -s -f $logfile "Created $PARA_BASE/_PROJECTS" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_PROJECTS"
+        mkdir -p "$PARA_BASE/_AREAS"    && log_and_color -s -f $logfile "Created $PARA_BASE/_AREAS"    || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_AREAS"
+        mkdir -p "$PARA_BASE/_ARCHIVE"  && log_and_color -s -f $logfile "Created $PARA_BASE/_ARCHIVE"  || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_ARCHIVE"
+        mkdir -p "$PARA_BASE/_RESOURCES" && log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES"
+        mkdir -p "$PARA_BASE/_RESOURCES/Screen Shots" && log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES/Screen Shots" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES/Screen Shots"
+
+        echo
+        while true; do
+            read -p "$(tput setaf 3)Move Screen Shots folder to $PARA_BASE/_RESOURCES/Screen Shots? (y/n): " yn
+            case $yn in
+                [Yy]* )
+                    defaults write com.apple.screencapture location "$PARA_BASE/_RESOURCES/Screen Shots"
+                    if [ $? -eq 0 ]; then
+                        killall SystemUIServer 2>/dev/null
+                        log_and_color -s -f $logfile "Screen Shots location set to $PARA_BASE/_RESOURCES/Screen Shots"
+                    else
+                        log_and_color -e -f $logfile "ERROR: Failed to set Screen Shots location"
+                    fi
+                    break;;
+                [Nn]* ) log_and_color -w -f $logfile "Screen Shots location not changed"; break;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+
+    else
+        echo
+        while true; do
+            read -p "$(tput setaf 3)Move Screen Shots folder to ~/Documents/Screen Shots? (y/n): " yn
+            case $yn in
+                [Yy]* )
+                    mkdir -p "$HOME/Documents/Screen Shots"
+                    if [ $? -eq 0 ]; then
+                        defaults write com.apple.screencapture location "$HOME/Documents/Screen Shots"
+                        if [ $? -eq 0 ]; then
+                            killall SystemUIServer 2>/dev/null
+                            log_and_color -s -f $logfile "Screen Shots location set to $HOME/Documents/Screen Shots"
+                        else
+                            log_and_color -e -f $logfile "ERROR: Failed to set Screen Shots location"
+                        fi
+                    else
+                        log_and_color -e -f $logfile "ERROR: Failed to create $HOME/Documents/Screen Shots"
+                    fi
+                    break;;
+                [Nn]* ) log_and_color -w -f $logfile "Screen Shots location not changed"; break;;
+                * ) echo "Please answer yes or no.";;
+            esac
+        done
+    fi
+
+    log_and_color -s -f $logfile "PARA File System setup complete"
+    unset setup_para PARA_BASE
+fi
+###End PARA File System Setup
 
 ###Misc. Output and reminders to screen
 ##Some of these will be automated at a later date
@@ -665,11 +1037,10 @@ echo "$(tput setaf 6)    https://appsource.microsoft.com/en-us/product/office/WA
 echo "$(tput setaf 6)    or https://outlook.office.com/mail/options/calendar/eventAndInvitations"
 echo "$(tput setaf 4)· Change prompt in .zshrc, example apple"
 echo "$(tput setaf 4)· Remove unwanted apps from the menu and task bars"
+echo "$(tput setaf 4)· Disable AirPlay Receiver: System Settings → General → AirPlay & Handoff → AirPlay Receiver (Off)"
+echo "$(tput setaf 4)· Disable Media Sharing (Home Sharing): Music (or TV) → Settings → Sharing (Off)"
 echo "$(tput setaf 4)· Adjust Finder prefferences"
 echo "$(tput setaf 4)· Install any required hardware/dock drivers (may require temp admin perms)"
-echo "$(tput setaf 4)· Change Screen Shot location"
-echo "$(tput setaf 6)   mkdir ~/Documents/Screen\ Shots"
-echo "$(tput setaf 6)   defaults write com.apple.screencapture location '~/Documents/Screen Shots'"
 echo "$(tput setaf 4)· Enable Apple Account"
 echo "$(tput setaf 6)  · Sync only Contacts, Find my Mac"
 echo

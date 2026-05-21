@@ -7,3 +7,5 @@
 !/LICENSE
 !/.vimrc
 !/Setup-MacEnvironment.sh
+!/firewall-location-aware.sh
+!/com.user.firewall-location-aware.plist

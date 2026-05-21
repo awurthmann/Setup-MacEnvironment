@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.firewall-location-aware</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/firewall-location-aware.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StartInterval</key>
+    <integer>60</integer>
+    <key>WatchPaths</key>
+    <array>
+        <!-- Triggers on any network configuration change -->
+        <string>/Library/Preferences/SystemConfiguration</string>
+        <!-- Triggers when DNS is updated (network join/leave) -->
+        <string>/var/run/resolv.conf</string>
+    </array>
+</dict>
+</plist>
