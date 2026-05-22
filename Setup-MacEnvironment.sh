@@ -12,7 +12,7 @@
 #
 # --------------------------------------------------------------------------------------------
 # Name: Setup-MacEnvironment.sh
-# Version: 2026.05.20.1200
+# Version: 2026.05.21.1200
 # Description: Setup Mac Environment on my Test System(s)
 #
 # Instructions: Download Setup-MacEnvironment.sh
