@@ -134,7 +134,7 @@ function log_and_color () {
     #end standard out in color
 
     #append log file with time stamp
-    echo -e "SH [`date +"%T"`]: $*" >> $logfile
+    echo -e "SH [$(date +"%T")]: $*" >> $logfile
 }
 
 function install_xcode () {
@@ -170,7 +170,7 @@ function install_xcode () {
 
 function install_tool () {
     log_and_color -s -f $logfile "Starting install for: $1"
-    brew install $1
+    brew install "$1"
     #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "$1 successfully installed"
@@ -181,7 +181,7 @@ function install_tool () {
 
 function install_app () {
     log_and_color -s -f $logfile "Starting install for: $1"
-    brew install --cask $1
+    brew install --cask "$1"
     #&& log_and_color -s -f $logfile "$1 successfully installed" || log_and_color -e -f $logfile "ERROR: $1 install failed"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "$1 successfully installed"
@@ -220,7 +220,11 @@ function install_wireshark () {
         if [ $? -eq 0 ]; then
             log_and_color -s -f $logfile "Wireshark GUI was successfully installed"
             log_and_color -i -f $logfile "Starting Wireshark macOS Hotfix Install"
-            brew install --cask wireshark-chmodbpf && log_and_color -s -f $logfile "Wireshark macOS Hotfix was successfully installed" || log_and_color -e -f $logfile "ERROR: Wireshark macOS Hotfix install was unsuccessfull"
+            if brew install --cask wireshark-chmodbpf; then
+                log_and_color -s -f $logfile "Wireshark macOS Hotfix was successfully installed"
+            else
+                log_and_color -e -f $logfile "ERROR: Wireshark macOS Hotfix install was unsuccessfull"
+            fi
         else
             log_and_color -e -f $logfile "ERROR: Wireshark GUI install was unsuccessfull"
         fi
@@ -343,8 +347,7 @@ if [ ! -d $HOME/.oh-my-zsh ]; then
     echo
 	echo "$(tput setaf 5)ATTENTION: The oh-my-zsh installation will require a restart of this setup script"
     echo "$(tput setaf 6)Press any key to continue"
-    read any
-    unset any
+    read -r _
 
 	log_and_color -w -f $logfile "oh-my-zsh setup stops this setup script during install. To complete setup, restart the script"
 	log_and_color -i -f $logfile "Starting oh-my-zsh Setup"
@@ -376,7 +379,7 @@ fi
 if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
 ###Homebrew Inventory
-brewApps=( $(brew list --version | awk '{ print $1 }') )
+mapfile -t brewApps < <(brew list --version | awk '{ print $1 }')
 
 ###Standard App Installs
 STDAPPS=( "Slack:slack"
@@ -405,7 +408,7 @@ for stdapp in "${STDAPPS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
         while true; do
-            read -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
+            read -r -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_app $VALUE; break;;
                 [Nn]* ) break;;
@@ -457,7 +460,7 @@ for msapp in "${MSAPPS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
         while true; do
-            read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
+            read -r -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_app $VALUE; break;;
                 [Nn]* ) break;;
@@ -481,7 +484,7 @@ for sectool in "${SECTOOLS[@]}" ; do
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
         while true; do
-            read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
+            read -r -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_tool $VALUE; break;;
                 [Nn]* ) break;;
@@ -496,7 +499,7 @@ done
 ###TheHarvester Install
 if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
     while true; do
-        read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
         case $yn in
             [Yy]* ) install_theharvester; break;;
             [Nn]* ) break;;
@@ -510,7 +513,7 @@ fi
 ###Wireshark Install
 if [[ ! " ${brewApps[@]} " =~ " wireshark " ]]; then
     while true; do
-        read -p "$(tput setaf 3)Do you wish to install Security app Wireshark? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to install Security app Wireshark? (y or n): " yn
         case $yn in
             [Yy]* ) install_wireshark; break;;
             [Nn]* ) break;;
@@ -525,9 +528,9 @@ fi
 ###Rename Computer
 if ! grep "Renaming computer to" $logfile > /dev/null; then
     while true; do
-        read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
         case $yn in
-            [Yy]* ) read -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
+            [Yy]* ) read -r -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
             [Nn]* ) break;;
             * ) echo "Please answer yes or no.";;
         esac
@@ -535,11 +538,11 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
 
     if [ ! -z "$NEW_HOST_NAME" ]; then
 
-        read -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
+        read -r -p "$(tput setaf 3)Enter new domain name (default is local): " NEW_DOMAIN_NAME
         if [ -z "$NEW_DOMAIN_NAME" ]; then NEW_DOMAIN_NAME="local"; fi
 
         while true; do
-            read -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME (y or n): " yn
+            read -r -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME (y or n): " yn
             case $yn in
                 [Yy]* ) rename=true; break;;
                 [Nn]* ) break;;
@@ -588,7 +591,7 @@ fi
 if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Create a hidden local admin account? (y or n): " yn
+        read -r -p "$(tput setaf 3)Create a hidden local admin account? (y or n): " yn
         case $yn in
             [Yy]* ) create_hidden_admin=true; break;;
             [Nn]* ) create_hidden_admin=false; break;;
@@ -599,7 +602,7 @@ if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
     if [ "$create_hidden_admin" = true ]; then
         echo
         echo "Enter full name of new admin user, default is Crash Override:"
-        read LOCAL_ADMIN_FULLNAME
+        read -r LOCAL_ADMIN_FULLNAME
 
         if [ -z "$LOCAL_ADMIN_FULLNAME" ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
         log_and_color -i -f $logfile "Local admin user full name set to: $LOCAL_ADMIN_FULLNAME"
@@ -608,7 +611,7 @@ if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
             LOCAL_ADMIN_SHORTNAME="crash"
         else
             echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
-            read LOCAL_ADMIN_SHORTNAME
+            read -r LOCAL_ADMIN_SHORTNAME
             if [ -z "$LOCAL_ADMIN_SHORTNAME" ]; then
                 log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
                 exit
@@ -683,7 +686,7 @@ fi
 if ! grep "Hardening Disable NetBIOS complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Do you wish to disable NetBIOS (hardening)? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to disable NetBIOS (hardening)? (y or n): " yn
         case $yn in
             [Yy]* ) harden_netbios=true; break;;
             [Nn]* ) harden_netbios=false; break;;
@@ -728,7 +731,7 @@ if ! grep "Hardening Disable NetBIOS complete" $logfile > /dev/null; then
                 log_and_color -w -f $logfile "WARN: $NETBIOS_LABEL disabled state reported as: ${disabled_state:-not found}"
             fi
 
-            if ps aux | grep -i "[n]etbiosd" > /dev/null 2>&1; then
+            if pgrep -i netbiosd > /dev/null 2>&1; then
                 log_and_color -w -f $logfile "WARN: $NETBIOS_LABEL still appears to be running (will not restart after reboot)"
             else
                 log_and_color -s -f $logfile "Verified: $NETBIOS_LABEL is not running"
@@ -748,7 +751,7 @@ fi
 if ! grep "Hardening Disable Sharing Services complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Do you wish to disable sharing services (AFP, SMB, Screen Sharing, Printer Sharing, Remote Login, Remote Management)? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to disable sharing services (AFP, SMB, Screen Sharing, Printer Sharing, Remote Login, Remote Management)? (y or n): " yn
         case $yn in
             [Yy]* ) harden_sharing=true; break;;
             [Nn]* ) harden_sharing=false; break;;
@@ -836,7 +839,7 @@ fi
 if ! grep "Hardening Enable Firewall complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Do you wish to enable the firewall with stealth mode and block all incoming connections? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to enable the firewall with stealth mode and block all incoming connections? (y or n): " yn
         case $yn in
             [Yy]* ) harden_firewall=true; break;;
             [Nn]* ) harden_firewall=false; break;;
@@ -896,7 +899,7 @@ if ! grep "Hardening Enable Secure Keyboard Entry complete" $logfile > /dev/null
     echo
     log_and_color -w -f $logfile "NOTE: Secure Keyboard Entry applies to Terminal.app only. It may prevent text expanders, autocomplete tools, and password managers that monitor keyboard input from working."
     while true; do
-        read -p "$(tput setaf 3)Do you wish to enable Secure Keyboard Entry for Terminal? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to enable Secure Keyboard Entry for Terminal? (y or n): " yn
         case $yn in
             [Yy]* ) harden_ske=true; break;;
             [Nn]* ) harden_ske=false; break;;
@@ -928,7 +931,7 @@ fi
 if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Do you wish to install the location-aware firewall? (y or n): " yn
+        read -r -p "$(tput setaf 3)Do you wish to install the location-aware firewall? (y or n): " yn
         case $yn in
             [Yy]* ) setup_law_firewall=true; break;;
             [Nn]* ) setup_law_firewall=false; break;;
@@ -942,12 +945,12 @@ if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
         BASE_URL="https://raw.githubusercontent.com/awurthmann/Setup-MacEnvironment/main"
 
         echo
-        read -p "$(tput setaf 3)Enter your home subnet prefix (default 192.168.1.): " LAW_SUBNET
+        read -r -p "$(tput setaf 3)Enter your home subnet prefix (default 192.168.1.): " LAW_SUBNET
         LAW_SUBNET="${LAW_SUBNET:-192.168.1.}"
         [[ "$LAW_SUBNET" != *. ]] && LAW_SUBNET="${LAW_SUBNET}."
         log_and_color -i -f $logfile "Home subnet prefix set to: $LAW_SUBNET"
 
-        read -p "$(tput setaf 3)Enter your gateway IP address (default 192.168.1.1): " LAW_GATEWAY_IP
+        read -r -p "$(tput setaf 3)Enter your gateway IP address (default 192.168.1.1): " LAW_GATEWAY_IP
         LAW_GATEWAY_IP="${LAW_GATEWAY_IP:-192.168.1.1}"
         log_and_color -i -f $logfile "Gateway IP set to: $LAW_GATEWAY_IP"
 
@@ -957,7 +960,7 @@ if ! grep "Location-Aware Firewall setup complete" $logfile > /dev/null; then
         echo
         LAW_GATEWAY_MAC=""
         while [ -z "$LAW_GATEWAY_MAC" ]; do
-            read -p "$(tput setaf 3)Enter your gateway MAC address: " LAW_GATEWAY_MAC
+            read -r -p "$(tput setaf 3)Enter your gateway MAC address: " LAW_GATEWAY_MAC
             if [ -z "$LAW_GATEWAY_MAC" ]; then
                 echo "$(tput setaf 1)Gateway MAC address is required."
             fi
@@ -1012,7 +1015,7 @@ fi
 if ! grep "PARA File System setup complete" $logfile > /dev/null; then
     echo
     while true; do
-        read -p "$(tput setaf 3)Do you want to setup the PARA File System? (y/n, default y): " yn
+        read -r -p "$(tput setaf 3)Do you want to setup the PARA File System? (y/n, default y): " yn
         yn=${yn:-y}
         case $yn in
             [Yy]* ) setup_para=true; break;;
@@ -1022,20 +1025,40 @@ if ! grep "PARA File System setup complete" $logfile > /dev/null; then
     done
 
     if [ "$setup_para" = true ]; then
-        read -p "$(tput setaf 3)Where would you like to setup PARA? (default ~/Documents): " PARA_BASE
+        read -r -p "$(tput setaf 3)Where would you like to setup PARA? (default ~/Documents): " PARA_BASE
         PARA_BASE="${PARA_BASE:-$HOME/Documents}"
         PARA_BASE="${PARA_BASE/#\~/$HOME}"
 
         log_and_color -i -f $logfile "Setting up PARA File System under $PARA_BASE"
-        mkdir -p "$PARA_BASE/_PROJECTS" && log_and_color -s -f $logfile "Created $PARA_BASE/_PROJECTS" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_PROJECTS"
-        mkdir -p "$PARA_BASE/_AREAS"    && log_and_color -s -f $logfile "Created $PARA_BASE/_AREAS"    || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_AREAS"
-        mkdir -p "$PARA_BASE/_ARCHIVE"  && log_and_color -s -f $logfile "Created $PARA_BASE/_ARCHIVE"  || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_ARCHIVE"
-        mkdir -p "$PARA_BASE/_RESOURCES" && log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES"
-        mkdir -p "$PARA_BASE/_RESOURCES/Screen Shots" && log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES/Screen Shots" || log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES/Screen Shots"
+        if mkdir -p "$PARA_BASE/_PROJECTS"; then
+            log_and_color -s -f $logfile "Created $PARA_BASE/_PROJECTS"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_PROJECTS"
+        fi
+        if mkdir -p "$PARA_BASE/_AREAS"; then
+            log_and_color -s -f $logfile "Created $PARA_BASE/_AREAS"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_AREAS"
+        fi
+        if mkdir -p "$PARA_BASE/_ARCHIVE"; then
+            log_and_color -s -f $logfile "Created $PARA_BASE/_ARCHIVE"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_ARCHIVE"
+        fi
+        if mkdir -p "$PARA_BASE/_RESOURCES"; then
+            log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES"
+        fi
+        if mkdir -p "$PARA_BASE/_RESOURCES/Screen Shots"; then
+            log_and_color -s -f $logfile "Created $PARA_BASE/_RESOURCES/Screen Shots"
+        else
+            log_and_color -e -f $logfile "ERROR: Failed to create $PARA_BASE/_RESOURCES/Screen Shots"
+        fi
 
         echo
         while true; do
-            read -p "$(tput setaf 3)Move Screen Shots folder to $PARA_BASE/_RESOURCES/Screen Shots? (y/n): " yn
+            read -r -p "$(tput setaf 3)Move Screen Shots folder to $PARA_BASE/_RESOURCES/Screen Shots? (y/n): " yn
             case $yn in
                 [Yy]* )
                     defaults write com.apple.screencapture location "$PARA_BASE/_RESOURCES/Screen Shots"
@@ -1054,7 +1077,7 @@ if ! grep "PARA File System setup complete" $logfile > /dev/null; then
     else
         echo
         while true; do
-            read -p "$(tput setaf 3)Move Screen Shots folder to ~/Documents/Screen Shots? (y/n): " yn
+            read -r -p "$(tput setaf 3)Move Screen Shots folder to ~/Documents/Screen Shots? (y/n): " yn
             case $yn in
                 [Yy]* )
                     mkdir -p "$HOME/Documents/Screen Shots"
@@ -1125,7 +1148,7 @@ while true; do
     echo
     echo "$(tput setaf 5)Setup script complete."
     echo "$(tput setaf 3)A final reboot is required "
-    read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
+    read -r -p "$(tput setaf 3)Reboot computer? (y or n): " yn
     case $yn in
         [Yy]* ) log_and_color -s -f $logfile "Setup script complete, rebooting";sudo shutdown -r now; break;;
         [Nn]* ) log_and_color -w -f $logfile "Setup script complete, reboot recommended"; break;;
