@@ -56,7 +56,6 @@ function wait_app_start () {
         if [ $checkCount -ge $checkMax ] ; then
             appCheck=false
             return 1
-            break
         fi
     done
 }
@@ -84,7 +83,6 @@ function wait_app_stop () {
         if [ $checkCount -ge $checkMax ] ; then
             appCheck=false
             return 1
-            break
         fi
     done
 }
@@ -152,11 +150,11 @@ function install_xcode () {
     echo "$(tput setaf 3)This script will auto-exit, and will require restart, after 120 minutes"
     echo
     log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to start"
-    wait_app_start "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
+    wait_app_start "/System/Library/CoreServices/Install Command Line Developer Tools.app"
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "Command Line Developer Tools install started"
         log_and_color -i -f $logfile "Waiting for Command Line Developer Tools install to complete"
-        wait_app_stop "/System/Library/CoreServices/Install\ Command\ Line\ Developer\ Tools.app"
+        wait_app_stop "/System/Library/CoreServices/Install Command Line Developer Tools.app"
         if [ $? -eq 0 ]; then
             log_and_color -s -f $logfile "Command Line Developer Tools install completed"
             return 0
