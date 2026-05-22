@@ -406,8 +406,6 @@ for stdapp in "${STDAPPS[@]}" ; do
     VALUE="${stdapp##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
             case $yn in
@@ -435,8 +433,6 @@ for msapp in "${MSAPPS[@]}" ; do
     VALUE="${msapp##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
             case $yn in
@@ -461,8 +457,6 @@ for sectool in "${SECTOOLS[@]}" ; do
     VALUE="${sectool##*:}"
 
     if [[ ! " ${brewApps[@]} " =~ " ${VALUE} " ]]; then
-	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo
         while true; do
             read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
             case $yn in
@@ -478,8 +472,6 @@ done
 
 ###TheHarvester Install
 if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
-	#echo "$(tput setaf 2)NOTE: You can safely ignore any missing formula error above"
-	echo
     while true; do
         read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
         case $yn in
