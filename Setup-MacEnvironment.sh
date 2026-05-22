@@ -198,7 +198,7 @@ function install_theharvester () {
     brew install theharvester
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "TheHarvester successfully installed"
-        echo "export PATH=\$PATH:\$HOME/homebrew/etc/theharvester" >> .zshrc
+        echo "export PATH=\$PATH:\$HOME/homebrew/etc/theharvester" >> "$HOME/.zshrc"
 
         log_and_color -i -f $logfile "Starting Python PIP Upgrade"
         /Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
@@ -248,7 +248,7 @@ echo
 ##End Start Message
 
 ###Admin Check
-if [ `whoami` == root ]; then
+if [ "$(whoami)" = "root" ]; then
     log_and_color -e -f $logfile "ERROR: This script must NOT be run as root or using sudo. Exiting"
     exit
 fi
@@ -549,7 +549,7 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
             esac
         done
 
-        if "$rename" eq "true"; then
+        if [ "$rename" = "true" ]; then
             log_and_color -i -f $logfile "Renaming computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME"
 
             sudo scutil --set HostName "$NEW_HOST_NAME.$NEW_DOMAIN_NAME"
