@@ -419,6 +419,31 @@ for stdapp in "${STDAPPS[@]}" ; do
 done
 ###End Standards App Installs
 
+###VS Code Alias
+if [[ -d "/Applications/Visual Studio Code.app" ]] || [[ " ${brewApps[@]} " =~ " visual-studio-code " ]]; then
+    if ! grep -q "alias code=" "$HOME/.zshrc" 2>/dev/null; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Added by $USER" >> "$HOME/.zshrc"
+        echo "alias code=\"open -a 'Visual Studio Code'\"" >> "$HOME/.zshrc"
+        log_and_color -s -f $logfile "VS Code alias added to .zshrc"
+    else
+        log_and_color -i -f $logfile "VS Code alias already exists in .zshrc"
+    fi
+fi
+###End VS Code Alias
+
+###PyCharm Alias
+if [[ -d "/Applications/PyCharm CE.app" ]] || [[ " ${brewApps[@]} " =~ " pycharm-ce " ]]; then
+    if ! grep -q "alias pycharm=" "$HOME/.zshrc" 2>/dev/null; then
+        echo "" >> "$HOME/.zshrc"
+        echo "# Added by $USER" >> "$HOME/.zshrc"
+        echo "alias pycharm=\"open -a 'PyCharm CE'\"" >> "$HOME/.zshrc"
+        log_and_color -s -f $logfile "PyCharm alias added to .zshrc"
+    else
+        log_and_color -i -f $logfile "PyCharm alias already exists in .zshrc"
+    fi
+fi
+###End PyCharm Alias
 
 ###Microsoft App Installs
 MSAPPS=( #"Intune:intune-company-portal"
