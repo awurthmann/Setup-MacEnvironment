@@ -379,7 +379,10 @@ fi
 if [[ ! ":$PATH:" == *"$HOMEBREW_PREFIX/bin"* ]]; then export PATH=$PATH:$HOMEBREW_PREFIX/bin; fi
 
 ###Homebrew Inventory
-mapfile -t brewApps < <(brew list --version | awk '{ print $1 }')
+brewApps=()
+while IFS= read -r line; do
+    brewApps+=("$line")
+done < <(brew list --version | awk '{ print $1 }')
 
 ###Standard App Installs
 STDAPPS=( "Slack:slack"
