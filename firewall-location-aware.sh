@@ -40,16 +40,20 @@ log() {
 
 apply_home_profile() {
     log "Applying home profile: on, stealth on, block-all off"
-    "$FIREWALL" --setglobalstate on >> "$LOGFILE" 2>&1
-    "$FIREWALL" --setstealthmode on >> "$LOGFILE" 2>&1
-    "$FIREWALL" --setblockall off   >> "$LOGFILE" 2>&1
+    {
+        "$FIREWALL" --setglobalstate on
+        "$FIREWALL" --setstealthmode on
+        "$FIREWALL" --setblockall off
+    } >> "$LOGFILE" 2>&1
 }
 
 apply_away_profile() {
     log "Applying away profile: on, stealth on, block-all on"
-    "$FIREWALL" --setglobalstate on >> "$LOGFILE" 2>&1
-    "$FIREWALL" --setstealthmode on >> "$LOGFILE" 2>&1
-    "$FIREWALL" --setblockall on    >> "$LOGFILE" 2>&1
+    {
+        "$FIREWALL" --setglobalstate on
+        "$FIREWALL" --setstealthmode on
+        "$FIREWALL" --setblockall on
+    } >> "$LOGFILE" 2>&1
 }
 
 # Check if any active interface has an IP in the home subnet
