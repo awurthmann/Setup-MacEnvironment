@@ -198,7 +198,7 @@ function install_theharvester () {
     brew install theharvester
     if [ $? -eq 0 ]; then
         log_and_color -s -f $logfile "TheHarvester successfully installed"
-        echo "export PATH=\$PATH:\$HOME/homebrew/etc/theharvester" >> "$HOME/.zshrc"
+        echo "export PATH=\$PATH:${HOMEBREW_PREFIX}/etc/theharvester" >> "$HOME/.zshrc"
 
         log_and_color -i -f $logfile "Starting Python PIP Upgrade"
         /Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
@@ -410,7 +410,7 @@ for stdapp in "${STDAPPS[@]}" ; do
             read -p "$(tput setaf 3)Do you wish to install $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_app $VALUE; break;;
-                [Nn]* ) break; exit;;
+                [Nn]* ) break;;
                 * ) echo "Please answer yes or no.";;
             esac
         done
@@ -462,7 +462,7 @@ for msapp in "${MSAPPS[@]}" ; do
             read -p "$(tput setaf 3)Do you wish to install Microsoft $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_app $VALUE; break;;
-                [Nn]* ) break; exit;;
+                [Nn]* ) break;;
                 * ) echo "Please answer yes or no.";;
             esac
         done
@@ -486,7 +486,7 @@ for sectool in "${SECTOOLS[@]}" ; do
             read -p "$(tput setaf 3)Do you wish to install Security tool $KEY? (y or n): " yn
             case $yn in
                 [Yy]* ) install_tool $VALUE; break;;
-                [Nn]* ) break; exit;;
+                [Nn]* ) break;;
                 * ) echo "Please answer yes or no.";;
             esac
         done
@@ -501,7 +501,7 @@ if [[ ! " ${brewApps[@]} " =~ " theharvester " ]]; then
         read -p "$(tput setaf 3)Do you wish to install Security tool TheHarvester? (y or n): " yn
         case $yn in
             [Yy]* ) install_theharvester; break;;
-            [Nn]* ) break; exit;;
+            [Nn]* ) break;;
             * ) echo "Please answer yes or no.";;
         esac
     done
@@ -515,7 +515,7 @@ if [[ ! " ${brewApps[@]} " =~ " wireshark " ]]; then
         read -p "$(tput setaf 3)Do you wish to install Security app Wireshark? (y or n): " yn
         case $yn in
             [Yy]* ) install_wireshark; break;;
-            [Nn]* ) break; exit;;
+            [Nn]* ) break;;
             * ) echo "Please answer yes or no.";;
         esac
     done
@@ -530,7 +530,7 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
         read -p "$(tput setaf 3)Do you wish to rename computer? (y or n): " yn
         case $yn in
             [Yy]* ) read -p "$(tput setaf 3)Enter new computer name: " NEW_HOST_NAME; break;;
-            [Nn]* ) break; exit;;
+            [Nn]* ) break;;
             * ) echo "Please answer yes or no.";;
         esac
     done
@@ -544,7 +544,7 @@ if ! grep "Renaming computer to" $logfile > /dev/null; then
             read -p "$(tput setaf 3)Rename computer to $NEW_HOST_NAME.$NEW_DOMAIN_NAME (y or n): " yn
             case $yn in
                 [Yy]* ) rename=true; break;;
-                [Nn]* ) break; exit;;
+                [Nn]* ) break;;
                 * ) echo "Please answer Y for yes or N for no.";;
             esac
         done
@@ -587,6 +587,7 @@ fi
 ###End Rename Computer
 
 ###Hidden Admin Account Creation
+if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
 echo
 echo "Enter full name of new admin user, default is Crash Override:"
 read LOCAL_ADMIN_FULLNAME
@@ -606,12 +607,16 @@ else
 fi
 log_and_color -i -f $logfile "Local admin, $LOCAL_ADMIN_FULLNAME, username set to: $LOCAL_ADMIN_SHORTNAME"
 log_and_color -w -f $logfile "Prompting for sudo password"
-sudo sysadminctl -addUser "$LOCAL_ADMIN_SHORTNAME" -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
-if [ $? -eq 0 ]; then
-    log_and_color -s -f $logfile "Successfully created $LOCAL_ADMIN_FULLNAME with home director at /var/$LOCAL_ADMIN_SHORTNAME"
+if id "$LOCAL_ADMIN_SHORTNAME" &>/dev/null; then
+    log_and_color -i -f $logfile "$LOCAL_ADMIN_SHORTNAME already exists — skipping user creation"
 else
-    log_and_color -e -f $logfile "ERROR: Unable to create $LOCAL_ADMIN_FULLNAME"
-    exit
+    sudo sysadminctl -addUser "$LOCAL_ADMIN_SHORTNAME" -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
+    if [ $? -eq 0 ]; then
+        log_and_color -s -f $logfile "Successfully created $LOCAL_ADMIN_FULLNAME with home director at /var/$LOCAL_ADMIN_SHORTNAME"
+    else
+        log_and_color -e -f $logfile "ERROR: Unable to create $LOCAL_ADMIN_FULLNAME"
+        exit
+    fi
 fi
 
 sudo dscl . create /Users/$LOCAL_ADMIN_SHORTNAME IsHidden 1
@@ -657,6 +662,8 @@ if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then
     fi
 else
     log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
+fi
+log_and_color -s -f $logfile "Hidden Admin Account Creation complete"
 fi
 ###End Hidden Admin Account Creation
 
