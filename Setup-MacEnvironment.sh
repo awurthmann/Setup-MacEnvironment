@@ -240,12 +240,12 @@ if [ ! -f "$logfile" ]; then touch $logfile; fi
 
 ##Start Message
 echo;echo
-echo "$(tput setaf 13)IMPORTANT NOTE:"
-echo "$(tput setaf 12)This script may require several restarts of the script"
-echo "$(tput setaf 12)or system reboots to fully complete. A log file is "
-echo "$(tput setaf 12)located at: $logfile"
-echo "$(tput setaf 12)Once the script has completed a message on the screen"
-echo "$(tput setaf 12)and in the log will read: 'Setup script complete.'"
+echo "$(tput setaf 5)IMPORTANT NOTE:"
+echo "$(tput setaf 6)This script may require several restarts of the script"
+echo "$(tput setaf 6)or system reboots to fully complete. A log file is "
+echo "$(tput setaf 6)located at: $logfile"
+echo "$(tput setaf 6)Once the script has completed a message on the screen"
+echo "$(tput setaf 6)and in the log will read: 'Setup script complete.'"
 echo
 ##End Start Message
 
@@ -346,7 +346,7 @@ fi
 if [ ! -d $HOME/.oh-my-zsh ]; then
     echo
 	echo "$(tput setaf 5)ATTENTION: The oh-my-zsh installation will require a restart of this setup script"
-    echo "$(tput setaf 6)Press any key to continue"
+    echo "$(tput setaf 3)Press any key to continue"
     read -r _
 
 	log_and_color -w -f $logfile "oh-my-zsh setup stops this setup script during install. To complete setup, restart the script"
@@ -606,7 +606,7 @@ if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
 
     if [ "$create_hidden_admin" = true ]; then
         echo
-        echo "Enter full name of new admin user, default is Crash Override:"
+        echo "$(tput setaf 3)Enter full name of new admin user, default is Crash Override:"
         read -r LOCAL_ADMIN_FULLNAME
 
         if [ -z "$LOCAL_ADMIN_FULLNAME" ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
@@ -615,7 +615,7 @@ if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
         if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then
             LOCAL_ADMIN_SHORTNAME="crash"
         else
-            echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
+            echo "$(tput setaf 3)Enter username for $LOCAL_ADMIN_FULLNAME:"
             read -r LOCAL_ADMIN_SHORTNAME
             if [ -z "$LOCAL_ADMIN_SHORTNAME" ]; then
                 log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
