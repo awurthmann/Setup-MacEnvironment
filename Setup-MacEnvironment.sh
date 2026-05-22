@@ -415,8 +415,8 @@ for stdapp in "${STDAPPS[@]}" ; do
                 * ) echo "Please answer yes or no.";;
             esac
         done
+        echo
     fi
-    echo
 done
 ###End Standards App Installs
 
@@ -467,8 +467,8 @@ for msapp in "${MSAPPS[@]}" ; do
                 * ) echo "Please answer yes or no.";;
             esac
         done
+        echo
     fi
-    echo
 done
 ###End Microsoft App Installs
 
@@ -491,8 +491,8 @@ for sectool in "${SECTOOLS[@]}" ; do
                 * ) echo "Please answer yes or no.";;
             esac
         done
+        echo
     fi
-    echo
 done
 ###End Security Tools Installs
 
