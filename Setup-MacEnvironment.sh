@@ -433,6 +433,7 @@ if [[ -d "/Applications/Visual Studio Code.app" ]] || [[ " ${brewApps[@]} " =~ "
     else
         log_and_color -i -f $logfile "VS Code alias already exists in .zshrc"
     fi
+    echo
 fi
 ###End VS Code Alias
 
@@ -446,6 +447,7 @@ if [[ -d "/Applications/PyCharm CE.app" ]] || [[ " ${brewApps[@]} " =~ " pycharm
     else
         log_and_color -i -f $logfile "PyCharm alias already exists in .zshrc"
     fi
+    echo
 fi
 ###End PyCharm Alias
 
