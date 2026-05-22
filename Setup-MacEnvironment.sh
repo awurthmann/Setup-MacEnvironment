@@ -592,7 +592,7 @@ echo
 echo "Enter full name of new admin user, default is Crash Override:"
 read LOCAL_ADMIN_FULLNAME
 
-if [ ! $LOCAL_ADMIN_FULLNAME ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
+if [ -z "$LOCAL_ADMIN_FULLNAME" ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
 log_and_color -i -f $logfile "Local admin user full name set to: $LOCAL_ADMIN_FULLNAME"
 
 if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then
@@ -600,7 +600,7 @@ if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" =
 else
     echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
     read LOCAL_ADMIN_SHORTNAME
-    if [ ! $LOCAL_ADMIN_SHORTNAME ]; then
+    if [ -z "$LOCAL_ADMIN_SHORTNAME" ]; then
         log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
         exit
     fi
@@ -1116,7 +1116,7 @@ while true; do
     read -p "$(tput setaf 3)Reboot computer? (y or n): " yn
     case $yn in
         [Yy]* ) log_and_color -s -f $logfile "Setup script complete, rebooting";sudo shutdown -r now; break;;
-        [Nn]* ) log_and_color -w -f $logfile "Setup script complete, reboot recommended";break; exit;;
+        [Nn]* ) log_and_color -w -f $logfile "Setup script complete, reboot recommended"; break;;
         * ) echo "Please answer yes or no.";;
     esac
 done
