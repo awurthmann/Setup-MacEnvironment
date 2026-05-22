@@ -586,82 +586,96 @@ fi
 
 ###Hidden Admin Account Creation
 if ! grep "Hidden Admin Account Creation complete" $logfile > /dev/null; then
-echo
-echo "Enter full name of new admin user, default is Crash Override:"
-read LOCAL_ADMIN_FULLNAME
+    echo
+    while true; do
+        read -p "$(tput setaf 3)Create a hidden local admin account? (y or n): " yn
+        case $yn in
+            [Yy]* ) create_hidden_admin=true; break;;
+            [Nn]* ) create_hidden_admin=false; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
 
-if [ -z "$LOCAL_ADMIN_FULLNAME" ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
-log_and_color -i -f $logfile "Local admin user full name set to: $LOCAL_ADMIN_FULLNAME"
+    if [ "$create_hidden_admin" = true ]; then
+        echo
+        echo "Enter full name of new admin user, default is Crash Override:"
+        read LOCAL_ADMIN_FULLNAME
 
-if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then
-    LOCAL_ADMIN_SHORTNAME="crash"
-else
-    echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
-    read LOCAL_ADMIN_SHORTNAME
-    if [ -z "$LOCAL_ADMIN_SHORTNAME" ]; then
-        log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
-        exit
-    fi
-fi
-log_and_color -i -f $logfile "Local admin, $LOCAL_ADMIN_FULLNAME, username set to: $LOCAL_ADMIN_SHORTNAME"
-log_and_color -w -f $logfile "Prompting for sudo password"
-if id "$LOCAL_ADMIN_SHORTNAME" &>/dev/null; then
-    log_and_color -i -f $logfile "$LOCAL_ADMIN_SHORTNAME already exists — skipping user creation"
-else
-    sudo sysadminctl -addUser "$LOCAL_ADMIN_SHORTNAME" -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
-    if [ $? -eq 0 ]; then
-        log_and_color -s -f $logfile "Successfully created $LOCAL_ADMIN_FULLNAME with home director at /var/$LOCAL_ADMIN_SHORTNAME"
+        if [ -z "$LOCAL_ADMIN_FULLNAME" ]; then LOCAL_ADMIN_FULLNAME="Crash Override"; fi
+        log_and_color -i -f $logfile "Local admin user full name set to: $LOCAL_ADMIN_FULLNAME"
+
+        if [ "$LOCAL_ADMIN_FULLNAME" = "Crash Override" ] || [ "$LOCAL_ADMIN_FULLNAME" = "crash" ]; then
+            LOCAL_ADMIN_SHORTNAME="crash"
+        else
+            echo "Enter username for $LOCAL_ADMIN_FULLNAME:"
+            read LOCAL_ADMIN_SHORTNAME
+            if [ -z "$LOCAL_ADMIN_SHORTNAME" ]; then
+                log_and_color -e -f $logfile "ERROR: No username was entered for user: $LOCAL_ADMIN_FULLNAME"
+                exit
+            fi
+        fi
+        log_and_color -i -f $logfile "Local admin, $LOCAL_ADMIN_FULLNAME, username set to: $LOCAL_ADMIN_SHORTNAME"
+        log_and_color -w -f $logfile "Prompting for sudo password"
+        if id "$LOCAL_ADMIN_SHORTNAME" &>/dev/null; then
+            log_and_color -i -f $logfile "$LOCAL_ADMIN_SHORTNAME already exists — skipping user creation"
+        else
+            sudo sysadminctl -addUser "$LOCAL_ADMIN_SHORTNAME" -fullName "$LOCAL_ADMIN_FULLNAME" -admin -home /var/$LOCAL_ADMIN_SHORTNAME #-password "$LOCAL_ADMIN_PASSWORD"
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "Successfully created $LOCAL_ADMIN_FULLNAME with home director at /var/$LOCAL_ADMIN_SHORTNAME"
+            else
+                log_and_color -e -f $logfile "ERROR: Unable to create $LOCAL_ADMIN_FULLNAME"
+                exit
+            fi
+        fi
+
+        sudo dscl . create /Users/$LOCAL_ADMIN_SHORTNAME IsHidden 1
+        if [ $? -eq 0 ]; then
+            log_and_color -s -f $logfile "Successfully hid $LOCAL_ADMIN_FULLNAME"
+        else
+            log_and_color -e -f $logfile "ERROR: Unable to hide $LOCAL_ADMIN_FULLNAME"
+            exit
+        fi
+
+        sudo dscl . -delete "/SharePoints/$LOCAL_ADMIN_FULLNAME's Public Folder" # Removes the public folder sharepoint for the local admin if it was created
+        if [ $? -eq 0 ]; then
+            log_and_color -s -f $logfile "Successfully deleted $LOCAL_ADMIN_FULLNAME's Public Folder'"
+        else
+            log_and_color -w -f $logfile "WARN: Unable to delete $LOCAL_ADMIN_FULLNAME's Public Folder. Folder may not exist"
+        fi
+
+        echo
+        echo "$(tput setaf 3)Enter password for $LOCAL_ADMIN_FULLNAME"
+        sudo dscl . -passwd /Users/$LOCAL_ADMIN_SHORTNAME
+        if [ $? -eq 0 ]; then
+            log_and_color -s -f $logfile "Successfully created password for $LOCAL_ADMIN_FULLNAME"
+        else
+            log_and_color -e -f $logfile "ERROR: Unable to create password for $LOCAL_ADMIN_FULLNAME"
+            exit
+        fi
+
+        log_and_color -i -f $logfile "Creating re-admin ease-of-use scripts in $HOME/Public"
+        echo "sudo dseditgroup -o edit -a $USER -t user admin" > $HOME/Public/add-admin.sh
+        sudo chmod +x $HOME/Public/add-admin.sh
+        echo "sudo dseditgroup -o edit -d $USER -t user admin" > $HOME/Public/remove-admin.sh
+        sudo chmod +x $HOME/Public/remove-admin.sh
+
+        if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then
+            log_and_color -i -f $logfile "Removing $USER's admin privileges"
+            sudo dseditgroup -o edit -d $USER -t user admin
+            if [ $? -eq 0 ]; then
+                log_and_color -s -f $logfile "$USER's admin privileges were revoked"
+            else
+                log_and_color -e -f $logfile "ERROR: Unable to revoke $USER's admin privileges"
+                exit
+            fi
+        else
+            log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
+        fi
+        log_and_color -s -f $logfile "Hidden Admin Account Creation complete"
     else
-        log_and_color -e -f $logfile "ERROR: Unable to create $LOCAL_ADMIN_FULLNAME"
-        exit
+        log_and_color -w -f $logfile "Hidden Admin Account Creation skipped"
     fi
-fi
-
-sudo dscl . create /Users/$LOCAL_ADMIN_SHORTNAME IsHidden 1
-if [ $? -eq 0 ]; then
-    log_and_color -s -f $logfile "Successfully hid $LOCAL_ADMIN_FULLNAME"
-else
-    log_and_color -e -f $logfile "ERROR: Unable to hide $LOCAL_ADMIN_FULLNAME"
-    exit
-fi
-
-
-sudo dscl . -delete "/SharePoints/$LOCAL_ADMIN_FULLNAME's Public Folder" # Removes the public folder sharepoint for the local admin if it was created
-if [ $? -eq 0 ]; then
-    log_and_color -s -f $logfile "Successfully deleted $LOCAL_ADMIN_FULLNAME's Public Folder'"
-else
-    log_and_color -w -f $logfile "WARN: Unable to delete $LOCAL_ADMIN_FULLNAME's Public Folder. Folder may not exist"
-fi
-echo
-echo "$(tput setaf 3)Enter password for $LOCAL_ADMIN_FULLNAME"
-sudo dscl . -passwd /Users/$LOCAL_ADMIN_SHORTNAME
-if [ $? -eq 0 ]; then
-    log_and_color -s -f $logfile "Successfully created password for $LOCAL_ADMIN_FULLNAME"
-else
-    log_and_color -e -f $logfile "ERROR: Unable to create password for $LOCAL_ADMIN_FULLNAME"
-    exit
-fi
-
-log_and_color -i -f $logfile "Creating re-admin ease-of-use scripts in $HOME/Public"
-echo "sudo dseditgroup -o edit -a $USER -t user admin" > $HOME/Public/add-admin.sh
-sudo chmod +x $HOME/Public/add-admin.sh
-echo "sudo dseditgroup -o edit -d $USER -t user admin" > $HOME/Public/remove-admin.sh
-sudo chmod +x $HOME/Public/remove-admin.sh
-
-
-if dscacheutil -q group -a name admin | grep -q $LOCAL_ADMIN_SHORTNAME; then
-    log_and_color -i -f $logfile "Removing $USER's admin privileges"
-    sudo dseditgroup -o edit -d $USER -t user admin
-    if [ $? -eq 0 ]; then
-        log_and_color -s -f $logfile "$USER's admin privileges were revoked"
-    else
-        log_and_color -e -f $logfile "ERROR: Unable to revoke $USER's admin privileges"
-        exit
-    fi
-else
-    log_and_color -e -f $logfile "ERROR: Admin, $LOCAL_ADMIN_SHORTNAME, was not found in admin group"
-fi
-log_and_color -s -f $logfile "Hidden Admin Account Creation complete"
+    unset create_hidden_admin
 fi
 ###End Hidden Admin Account Creation
 
