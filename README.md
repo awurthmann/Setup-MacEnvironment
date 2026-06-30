@@ -2,7 +2,7 @@
 
 Script used to re-setup my test system(s) after being reset to "Factory Defaults". Installs Homebrew, configures the shell environment, installs applications and security tools, applies system hardening, and sets up a location-aware firewall.
 
-Tested with macOS 15.5 (Sequoia).
+Tested with macOS 26.5.x (Tahoe).
 
 ## Legal
 
